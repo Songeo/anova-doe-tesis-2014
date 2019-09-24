@@ -1,0 +1,96 @@
+\documentclass{book}
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,latexsym,epsfig} 
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,mexico]{babel}
+\usepackage[top = 2.5 cm]{geometry}
+\usepackage{color}
+\usepackage{fancyhdr}
+
+\pagestyle{fancyplain}
+\parskip=10pt %espacio entre p·rrafos
+\hoffset=0cm%-0.75cm%-20pt %1in +\hoffset
+\voffset=-1cm%-20pt %1in +\voffset
+\marginparwidth=0cm %ancho del margen izq.
+\oddsidemargin=0.5cm
+\evensidemargin=-0.41cm
+\textheight=23cm%700pt %medida de la p·g 595
+\textwidth=16.5cm%515pt %medida de la p·g 495
+\headheight=12pt \marginparsep=0cm \footskip=36pt \topmargin=0cm
+\headsep=16pt %\marginparpush=0pt
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries \thepage}]{\fancyplain{}{\bfseries \sl \rightmark}} \chead{} 
+\rhead[\fancyplain{}{\bfseries \sl \leftmark}]{\fancyplain{}{\bfseries \thepage}} 
+\pagestyle{fancy}  
+\lhead[\fancyplain{}{\small \rm \thepage}]{\fancyplain{}{\small \sl \rightmark}} 
+\rhead[\fancyplain{} {\small \sl \leftmark}] {\fancyplain{}{\small \rm \thepage}} 
+\lfoot{} \cfoot{} \rfoot{}
+
+
+\linespread{1.5}
+
+\setlength{\belowdisplayskip}{1.5pt} \setlength{\belowdisplayshortskip}{1.5pt}
+\setlength{\abovedisplayskip}{1.5pt} \setlength{\abovedisplayshortskip}{1.5pt}
+
+\newcommand{\tmt}[1]{\texttt{tratamiento #1}}
+\newcommand{\AOV}{\texttt{ANOVA}}
+\newcommand{\nota}[1]{\textcolor{red}{Nota: \texttt{#1} } } 
+\newcommand{\doe}{\text{diseño de experimentos}}
+\newcommand{\anova}{\text{análisis de varianza}}
+\newcommand{\Hi}[1]{\texttt{H}_{#1} }
+\newcommand{\Normal}{\texttt{N}}
+\newcommand{\chisquared}[1]{\chi_{ \text{\tiny{(#1)}} }^2}
+\newcommand{\Fdist}[1]{\text{F}_{ \text{\tiny{#1}} } }
+\newcommand{\E}{\texttt{E} }
+
+% TESIS
+\begin{document}
+
+\setcounter{chapter}{0}
+\chapter{Notación}\label{apend:notacion_aov}
+
+Para abreviar y facilitar los cálculos de cada nivel
+sobre la escritura del modelo se usa la notación siguiente
+sobre la sumatoria de las observaciones. 
+
+Sea $y_{ij}$ una muestra de observaciones dado 
+un factor A y $n$ observaciones por cada nivel. 
+De tal forma que $i = 1,\ldots, a$ representa
+el nivel del factor A y $j = 1,\ldots, n$ el número de 
+observación del $i$-ésimo nivel.
+
+Se indica con un punto como subíndice si se suma por
+cada variable. La suma de observaciones para el $(i)$-ésimo nivel 
+del factor se representa como:
+\[
+y_{i.} = \sum_{j = 1}^n y_{ij}
+\]
+El promedio para cada nivel del factor A 
+considerando las observaciones se define como:
+\[
+\bar{y}_{i.} = 
+\frac{y_{i.}}{n} =
+\frac{\sum_{j = 1}^n y_{ij}}{n}
+\]
+
+En general, la suma total sobre las $N=an$ observaciones 
+se representa como:
+\[
+y_{..} = \sum_{i = 1}^a \sum_{j = 1}^n y_{ij}
+\]
+Y consecuentemente, el promedio del total de
+las observaciones se representa como:
+\[
+\bar{y}_{..} =
+\frac{y_{..}}{a\cdot b} = 
+\frac{y_{..}}{N}
+\]
+
+La notación puede usarse para cualquier número
+de factores, en el caso de esta tesis 
+se llegan a usar tres subíndices. 
+
+\end{document}

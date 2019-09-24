@@ -1,0 +1,531 @@
+\documentclass{book}
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,latexsym,epsfig} 
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,mexico]{babel}
+\usepackage[top = 2.5 cm]{geometry}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage{amsthm}
+
+
+\pagestyle{fancyplain}
+\parskip=10pt %espacio entre p·rrafos
+\hoffset=0cm%-0.75cm%-20pt %1in +\hoffset
+\voffset=-1cm%-20pt %1in +\voffset
+\marginparwidth=0cm %ancho del margen izq.
+\oddsidemargin=0.5cm
+\evensidemargin=-0.41cm
+\textheight=23cm%700pt %medida de la p·g 595
+\textwidth=16.5cm%515pt %medida de la p·g 495
+\headheight=12pt \marginparsep=0cm \footskip=36pt \topmargin=0cm
+\headsep=16pt %\marginparpush=0pt
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries \thepage}]{\fancyplain{}{\bfseries \sl \rightmark}} \chead{} 
+\rhead[\fancyplain{}{\bfseries \sl \leftmark}]{\fancyplain{}{\bfseries \thepage}} 
+\pagestyle{fancy}  
+\lhead[\fancyplain{}{\small \rm \thepage}]{\fancyplain{}{\small \sl \rightmark}} 
+\rhead[\fancyplain{} {\small \sl \leftmark}] {\fancyplain{}{\small \rm \thepage}} 
+\lfoot{} \cfoot{} \rfoot{}
+
+
+\linespread{1.5}
+\setlength{\belowdisplayskip}{1.5pt} \setlength{\belowdisplayshortskip}{1.5pt}
+\setlength{\abovedisplayskip}{1.5pt} \setlength{\abovedisplayshortskip}{1.5pt}
+
+\newcommand{\tmt}[1]{\texttt{tratamiento #1}}
+\newcommand{\AOV}{\texttt{ANOVA}}
+\newcommand{\nota}[1]{\textcolor{red}{Nota: \texttt{#1} } } 
+\newcommand{\doe}{\text{diseño de experimentos}}
+\newcommand{\Hi}[1]{\texttt{H}_{#1} }
+\newcommand{\Normal}{\texttt{N}}
+\newcommand{\chisquared}[1]{\chi_{ \text{\tiny{(#1)}} }^2}
+\newcommand{\Fdist}[1]{\text{F}_{ \text{\tiny{#1}} } }
+\newcommand{\E}{\texttt{E} }
+\newcommand{\SST}{ \texttt{SS}_\texttt{T} }
+\newcommand{\SStmt}{ \texttt{SS}_\texttt{tmt} }
+\newcommand{\SSe}{ \texttt{SS}_\texttt{E} }
+\newcommand{\strat}[1]{ (n-1) \hat{\sigma}_{ \texttt{en } #1}^2 }
+\newcommand{\MSe}{ \texttt{MS}_\texttt{E} }
+\newcommand{\MStmt}{ \texttt{MS}_\texttt{tmt} }
+\newcommand{\tdist}[1]{\textit{t}_{ \text{\tiny{#1}} } }
+\newcommand{\derv}{ \;\mathrm{d} }
+
+
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\theoremstyle{plain}
+\newtheorem{propi}{Propiedad}[teo]
+\theoremstyle{plain}
+\newtheorem{cor}{Corolario}[teo]
+\theoremstyle{definition}
+\newtheorem{defn}{Definici\'on}
+\theoremstyle{definition}
+\newtheorem{ej}{Ejemplo}
+\theoremstyle{definition}
+\newtheorem{prop}{Proposici\'on}
+\theoremstyle{remark}
+\newtheorem{obs}{Observaci\'on}
+
+% TESIS
+\begin{document}
+
+\tableofcontents
+
+\appendix
+\setcounter{chapter}{2}
+\chapter{Procedimiento Bayesiano}\label{apend:estad_bayes}
+
+Un enfoque alternativo para obtener inferencia 
+de los datos, es el enfoque bayesiano. 
+Gelman y Hill (2007, Capítulo 18.3) \cite{RegressionGelman2007}
+definen el procedimiento bayesiano 
+como métodos prácticos para realizar 
+inferencia sobre parámetros desconocidos 
+usando procesos estadísticos 
+modelándolos como variables aleatorias.
+
+A diferencia del enfoque frecuentista,
+Wasserman (2005, Capítulo 11)\cite{Wasserman2005}
+determina el enfoque bayesiano como un
+método que describe la probabilidad 
+con conocimiento previo adquirido y 
+no únicamente basado en la frecuencia 
+observada. La 
+forma en que se infiere sobre los parámetros 
+es obteniendo su distribución de probabilidad.
+De ésta se obtienen estimaciones de los parámetros
+puntuales o de intervalos.
+Para obtenerla, el procedimiento se basa en el Teorema de Bayes, 
+sobre el que se discute en la siguiente sección.
+
+
+
+\section{Teorema de Bayes}
+Para explicar el Teorema de Bayes 
+se considera una hipótesis ($H$) y 
+determinada evidencia ($E$) obtenida previamente. 
+El objetivo es obtener una estimación de la probabilidad 
+de la hipótesis dado la evidencia adquirida. 
+Para obtenerla se considera la definición de probabilidad
+condicional de la hipótesis dado la evidencia $P(H|E)$. 
+
+  \begin{teo}[Teorema de Bayes]
+  \begin{equation}\label{eq:teo_bayes_orig}
+  P(H|E) = 
+  \frac{ P(H \cap E) }
+  {P(E)} = 
+  \frac{ P(E|H)P(H) }
+  {P(E)} 
+  \quad \text{para }P(E)>0
+  \end{equation}
+  donde $H$ la hipótesis y $E$ la evidencia.
+  \end{teo}
+
+A la distribución $P(H|E)$ se le conoce como la 
+distribución posterior o distribución objetivo. 
+$P(H)$ es la distribución de la hipótesis antes de la evidencia 
+observada y se le conoce como distribución a priori. 
+$P(E|H)$ se refiere a la 
+probabilidad de la evidencia dado la hipótesis y se le 
+conoce como la distribución del modelo.
+El Teorema de Bayes es una 
+propuesta para determinar la validez 
+de la hipótesis dado los datos. 
+
+
+Así, el caso particular discreto del Teorema de Bayes se 
+define suponiendo los sucesos $A_1, A_2, \ldots$ 
+una partición del espacio muestral $S$ tal 
+que $P(A_i)>0$ para cada $j=1,\dots, k$
+y sea $B$ cualquier suceso tal que $P(B)>0$, 
+entonces para cada $i=1,\dots, k$
+\[
+P(A_i|B) = 
+\frac{P(B|A_i)P(A_i)}
+{\sum_{j=1}^k P(B|A_j)P(A_j)}
+\]
+
+La forma continua del Teorema de Bayes se define
+con las funciones de densidad, como:
+\[
+P(A|B) = 
+\frac{P(B|A)P(A)}
+{\int_{S} P(B|A)P(A) \derv A} 
+\]
+
+
+
+\section{Aplicación a Modelos y Datos}
+Una de las aplicaciones más importantes del 
+Teorema de Bayes es la adaptación a datos y 
+parámetros,(Krushcke 2011, Capítulo 4.2)\cite{Kruschke2011}. 
+La evidencia se refiere al modelo de los
+datos y las hipótesis a los parámetros por 
+estimar. 
+
+El modelo original se representa con 
+la función de probabilidad $P$ de los 
+datos condicionados a los parámetros:
+\[
+P(\text{datos} | \text{valores de los parámetros})
+\]
+
+El Teorema de Bayes permite realizar 
+inferencia sobre los parámetros por medio 
+de la función de probabilidad de los parámetros
+condicionados a la estructura de los datos: 
+\[
+P(\text{valores de los parámetros} | \text{datos} )
+\]
+
+
+\subsection*{Estructura Bayesiana}
+Siguiendo los términos del Teorema de Bayes 
+se asignan nombres para definir 
+la estructura e identificar cada factor de la 
+ecuación \ref{eq:teo_bayes_orig}, 
+donde $X$ es la matriz de diseño de una muestra y  
+$\theta$ el parámetro o vector de parámetros. 
+La ecuación siguiente es una adapatación 
+del Teorema de Bayes en la que se define la estructura:
+  \begin{equation}\label{eq:estructura_bayes}
+  \underbrace{P(\theta|X)}_{\texttt{posterior}}
+  = 
+  \underbrace{P(X|\theta)}_{\texttt{modelo}}
+  \cdot
+  \underbrace{P(\theta)}_{\texttt{priori}}
+  /
+  \underbrace{P(X)}_{\texttt{marginal}}
+  \end{equation}
+
+Cada factor de la ecuación \ref{eq:teo_bayes_orig}
+representa una distribución probabilídtica.
+A continuación se definen las distribuciones
+sobre la estructura bayesiana definida en 
+\ref{eq:estructura_bayes}. 
+
+Sea $X$ una muestra aleatoria $x_1,\dots,x_n$ 
+de alguna población con distribución 
+$P$ condicionada al parámetro 
+o vector de parámetros $\theta$: 
+\[
+P(X|\theta)
+\]
+
+
+\begin{defn}[Distribución del modelo]
+La distribución del modelo estadístico 
+se selecciona según 
+Wasserman (2005, Capítulo 11)\cite{Wasserman2005}
+para reflejar el comportamiento de 
+los datos dado los parámetros $P(x|\theta)$.
+Kruschke (2011, Capítulo 4.2) define la distribución
+como la distribución de probabilidad
+de generar los datos dado los parámetros.
+\end{defn}
+  
+
+\begin{defn}[Distribución priori]
+Representa el conocimiento previo que se tiene sobre los 
+parámetros. En el ejemplo que se planteó al inicio 
+sobre la evidencia e hipótesis, la distribución 
+a priori es el conocimiento 
+que se tiene de la hipótesis únicamente.
+\[
+P(\theta)
+\]
+\end{defn}
+\vspace{-.5cm}
+Existen dos tipos de distribuciones
+que se puede asignar.
+\vspace{-.5cm}
+\begin{description}
+  \item [\quad Informativa]
+  Una distribución conocida previamente y 
+  con un comportamiento particular.
+  \vspace{-.2cm}
+  \item [\quad No informativa]
+  Se refiere a una distribución uniforme con un rango
+  amplio de posibles valores. Generalmente
+  usada cuando no se tiene información suficiente
+  sobre el comportamiento del parámetro. Generalmente, 
+  este tipo de distribución se considera como 
+  una referencia. 
+\end{description}
+
+
+\begin{defn}[Distribución posterior]
+Es la distribución de los parámetros una vez que 
+se considera el modelo estadístico y la 
+información a priori de los parámetros.
+\[
+P(\theta|X) = 
+\frac{P(X|\theta)P(\theta)}{P(X)} 
+\]
+
+Se desarrollan los términos del numerador 
+para obtener la \textbf{distribución conjunta}
+del modelo estadístico de los datos y 
+la información de los parámetros.
+\[
+P(X, \theta) = 
+P(X|\theta)P(\theta)
+\]
+En caso de ser $\theta$ un vector
+de parámetros, entonces, $P(\theta)$ es la 
+distribución conjunta de los parámetros.
+Es común que tengan alguna distribución 
+marginal e incluso tener hiperparámetros con otra 
+distribución. Sobre esto se detalla más adelante
+respecto a los modelos jerárquicos.
+\end{defn}
+
+\begin{defn}[Distribución marginal]
+La distribución describe la probabilidad de que 
+el modelo genere los datos $X$ considerando 
+todos los valores posibles de los parámetros 
+y ponderando los valores con la posibilidad 
+de que ocurran. La importancia de la distribución 
+marginal es que actúa como una constante para 
+normalizar y obtener la distribución posterior
+propiamente definida. 
+\[
+P(X)
+\]
+La forma de obtener la distribución a partir del
+modelo de los datos dado los parámetros 
+definidos previamente es considerando todos los 
+valores de $\theta$, el caso continuo y el 
+caso discreto para obtener la distribución se 
+muestra a continuación:
+\vspace{-.5cm}
+\begin{description}
+  \item [Caso continuo]
+  \[
+  P(X) = 
+  \int_\theta
+  P(X|\theta)P(\theta) \derv \theta
+  \]
+  \vspace{-.3cm}
+  \item [Caso discreto]
+  \[
+  P(X) = 
+  \sum_\theta
+  P(X|\theta)P(\theta)
+  \]
+\end{description}
+\end{defn}
+
+
+
+\section{Inferencia Bayesiana}
+Una vez definidas las distribuciones 
+de los parámetros y del modelo, 
+lo siguiente que interesa es realizar inferencia 
+estadística. La importancia de la inferencia bayesiana
+radica en los tres objetivos principales 
+que Kruschke (2011, Capítulo 4.3) \cite{Kruschke2011}
+menciona: estimación de valores posibles sobre los parámetros, 
+predicción de datos y comparación de modelos que 
+se basa en la distribución posterior. 
+En ésta tesis el objetivo que interesa
+es la estimación de los parámetros, 
+específicamente los coeficientes de cada nivel de
+las fuentes de variación. 
+
+Gelman et al. (2004, Capítulo 2.2) \cite{AndrewGelman2004} define
+la distribución posterior como un \emph{punto medio}
+que considera la distribución priori (únicamente de los 
+parámetros independiente de los datos) y la información de los datos
+(condicionada a los parámetros). 
+La magnitud de la intervención de una u otra distribución 
+depende en gran medida del tamaño de la muestra.  
+
+Es de esperar que la distribución posterior, 
+en comparación con la distribución a priori tiene menor 
+variabilidad sobre el parámetro porque considera la 
+información de los datos. 
+Una forma de ver esto es
+por la definición del valor esperado del 
+parámetro, que depende únicamente de 
+la distribución a priori. El valor 
+esperado del parámetro se define como el promedio de los 
+valores posibles de la media posterior. 
+\[
+\E[\theta] = \E \left[\E(\theta|x) \right]
+\]
+También, si se observa la definición de la 
+varianza del parámetro de la distribución a priori, 
+se observa que es menor 
+a la varianza de la estimación de la priori.
+\[
+Var(\theta]) = 
+\E \left[ Var(\theta|x) \right] + 
+Var \left( \E[\theta|x] \right)
+\]
+
+La función marginal $P(X)$ es independiente
+de los parámetros. Como 
+se mencionó antes, la función 
+es una constante para normalizar.
+La distribución posterior se reescribe como 
+una distribución proporcional 
+a la distribución conjunta.
+\[
+P(\theta|X) \propto
+P(X|\theta)P(\theta)
+\]
+
+Se puede observar que el proceso de pasar 
+de la distribución priori ($P(\theta)$) a la 
+distribución posterior $P(\theta|x)$ 
+usando los datos, genera una relación entre la
+distribución priori y la posterior. 
+Un ejemplo de la relación entre 
+la distribución priori y posterior surge
+el caso de las familias conjugadas. 
+
+
+  \begin{defn}[Familia conjugadas de distribución]
+  Sea $P(X|\theta)$ el modelo de los datos y $P(\theta)$ 
+  la función de distribución a priori. Una familia de 
+  densidades a priori $\mathcal{F}$ para el parámetro 
+  $\theta$, se dice conjugada para la distribución del 
+  modelo si para cualquier $P(\theta)$ perteneciente a 
+  $\mathcal{F}$ se verifica que la densidad posterior
+  $P(\theta|X)$ también pertenece a la familia $\mathcal{F}$
+  \footnote{Definición y ejemplos del profesor Esteban Flores en la clase de 
+  Estadística Aplicada a la Actuaría 2010 \cite{Esteban2010}}.
+  Ejemplos de familias conjugadas dependiendo de 
+  distintas distribuciones:
+    \begin{center}
+    \begin{tabular}{cc|c}
+    Priori & Modelo & Posterior \\
+    \hline 
+    Gamma & Poisson & Gamma \\
+    Normal & Normal & Normal \\
+    Beta & Bernoulli & Beta \\
+    \end{tabular}
+    \end{center}
+  \end{defn}
+
+La ventaja de las familias conjugadas matemáticamente 
+es la sencillez de obtener la distribución posterior.
+Una vez que se obtiene la distribución 
+posterior, es necesario reportar los 
+resultados de las estimaciones de los parámetros. 
+
+
+
+\subsection*{Resumen de la posterior}
+En general, la mejor forma de reportar la 
+distribución posterior, como menciona
+Gelman et al. (2004, Capítulo 2.2)\cite{AndrewGelman2004},
+es mediante gráficas de la distribución, 
+curvas de nivel o gráficas de dispersión. 
+Sin embargo, gracias a la capacidad de
+realizar simulaciones de la distribución 
+posterior, la forma que más se usa para 
+reportar valores o cálculo específicos 
+de los parámetros es flexibles y pueden 
+ser estimaciones como la media o mediana,
+o bien, evaluaciones de dispersión como 
+desviación estándar o cuartiles. 
+
+En esta tesis, se estima la 
+distribución posterior con métodos de simulación
+que se detallan en el Apéndice \ref{apend:sim_posterior}. 
+En este caso es común de reportar los resultados 
+considerando el total de las simulaciones para presentar
+la incertidumbre o variabilidad del 
+estimador es por medio de los intervalos de la 
+posterior. 
+
+\begin{defn}[Intervalos de la posterior]
+Se refiere a la región de 
+mayor densidad de la distribución posterior  
+para los valores objetivo. Esta región de mayor densidad
+contiene el $100(1-\alpha)\%$ de la probabilidad 
+de la distribución posterior y la densidad 
+dentro de la región considerando las simulaciones
+En particular, los intervalos que 
+se consideran representan el 
+90\% de los casos o el 50\% de probabilidad. La estimación 
+puntual es la media o la mediana del total 
+de los casos.
+\end{defn}
+ 
+
+\section{Modelo Jerárquico}
+Es común en aplicaciones estadísticas, 
+como las descritas en ciencias sociales por 
+Gelman et al. (2004, Capítulo 5.2)\cite{AndrewGelman2004}, 
+que se tengan varios parámetros y además exista 
+relación entre ellos. De esta relación 
+surgen los modelos jerárquicos o multinivel.
+
+  \begin{defn}[Modelo jerárquico] Es un modelo en 
+  el que además de condicionar a la observaciones a algunos 
+  parámetros, al mismo tiempo, los parámetros 
+  tienen una estructura de relación o 
+  dependencia entre ellos.
+  \end{defn}
+  
+En el caso no jerárquico, cada parámetro tiene 
+una distribución probabilística definida con 
+parámetros conocidos. En el caso 
+jerárquico esto no sucede, los parámetros
+de la distribución priori son desconocidos
+y se agrega una distribución probabilística 
+para estimarlos, a estos parámetros 
+se les denomina como hiperparámetros. 
+
+\begin{defn}[Hiperparámetro] ($\phi$)
+Gelman et al. (2004, Capítulo 5.2) \cite{AndrewGelman2004} lo 
+define como los parámetros que condicionan la distribución 
+priori por medio de la distribución asignada a la que se
+define como distribución hiperpriori $P(\phi)$. 
+\end{defn}
+
+Siguiendo la notación del modelo no jerárquico bayesiano, 
+se agrega el hiperparámetro $\phi$ que depende de $\theta$ y 
+$X$ es la muestra aleatoria. Por lo tanto, 
+\[
+P(\theta|\phi)
+\]
+
+La distribución de verosimilitud se define como: 
+\[
+P(X|\theta,\phi) = P(X|\theta)
+\]
+La muestra depende de los valores del parámetros, 
+sin embargo, es independiente al hiperparámetro, 
+ya que éste solo afecta a $X$ de forma indirecta 
+por el parámetro $\theta$. 
+
+Siguiendo la estructura de dependencia, la distribución
+conjunta a priori de los parámetros se define de la siguiente
+manera:
+\[
+P(\theta,\phi) = P(\theta|\phi)P(\phi)
+\]
+
+Por lo tanto, la distribución
+posterior proporcional se redefine:
+\[
+P(\theta,\phi|X) 
+\propto
+P(X|\theta) \cdot P(\theta|\phi) \cdot P(\phi)  
+\]
+
+
+
+% BIBLIOGRAFÍA
+\backmatter
+\bibliography{../../Tesis_biblos}
+\bibliographystyle{plain}
+\end{document}

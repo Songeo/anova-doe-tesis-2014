@@ -1,0 +1,8 @@
+
+model{
+  for(i in 1:length(y)){
+    y[i] ~ dbin(theta[i], r)
+    theta[i] ~ dbeta(alpha, alpha)
+  }
+  alpha ~ dexp(1)
+}

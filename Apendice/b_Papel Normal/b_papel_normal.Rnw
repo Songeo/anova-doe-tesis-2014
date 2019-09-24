@@ -1,0 +1,340 @@
+\documentclass{book}
+
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,latexsym,epsfig} 
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,mexico]{babel}
+\usepackage[top = 2.5 cm]{geometry}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage{amsthm}
+\usepackage{multirow}
+
+\pagestyle{fancyplain}
+\parskip=10pt %espacio entre p·rrafos
+\hoffset=0cm%-0.75cm%-20pt %1in +\hoffset
+\voffset=-1cm%-20pt %1in +\voffset
+\marginparwidth=0cm %ancho del margen izq.
+\oddsidemargin=0.5cm
+\evensidemargin=-0.41cm
+\textheight=23cm%700pt %medida de la p·g 595
+\textwidth=16.5cm%515pt %medida de la p·g 495
+\headheight=12pt \marginparsep=0cm \footskip=36pt \topmargin=0cm
+\headsep=16pt %\marginparpush=0pt
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries \thepage}]{\fancyplain{}{\bfseries \sl \rightmark}} \chead{} 
+\rhead[\fancyplain{}{\bfseries \sl \leftmark}]{\fancyplain{}{\bfseries \thepage}} 
+\pagestyle{fancy}  
+\lhead[\fancyplain{}{\small \rm \thepage}]{\fancyplain{}{\small \sl \rightmark}} 
+\rhead[\fancyplain{} {\small \sl \leftmark}] {\fancyplain{}{\small \rm \thepage}} 
+\lfoot{} \cfoot{} \rfoot{}
+
+
+\linespread{1.5}
+
+\setlength{\belowdisplayskip}{1.5pt} \setlength{\belowdisplayshortskip}{1.5pt}
+\setlength{\abovedisplayskip}{1.5pt} \setlength{\abovedisplayshortskip}{1.5pt}
+\setlength{\skip\footins}{1cm}
+
+\newcommand{\tmt}[1]{\texttt{tratamiento #1}}
+\newcommand{\AOV}{\texttt{ANOVA}}
+\newcommand{\nota}[1]{\textcolor{red}{Nota: \texttt{#1} } } 
+\newcommand{\doe}{\text{diseño de experimentos}}
+\newcommand{\anova}{\text{análisis de varianza}}
+\newcommand{\Hi}[1]{\texttt{H}_{#1} }
+\newcommand{\Normal}{\texttt{N}}
+\newcommand{\Unif}{\texttt{U}}
+\newcommand{\chisquared}[1]{\chi_{ \text{\tiny{(#1)}} }^2}
+\newcommand{\Fdist}[1]{\text{F}_{ \text{\tiny{#1}} } }
+\newcommand{\E}{\texttt{E} }
+\newcommand{\cov}{\texttt{COV} }
+\newcommand{\SST}{ \texttt{SS}_\texttt{T} }
+\newcommand{\SStmt}{ \texttt{SS}_\texttt{tmt} }
+\newcommand{\SSe}{ \texttt{SS}_\texttt{E} }
+\newcommand{\strat}[1]{ (n-1) \hat{\sigma}_{ \texttt{en } #1}^2 }
+\newcommand{\MSe}{ \texttt{MS}_\texttt{E} }
+\newcommand{\MStmt}{ \texttt{MS}_\texttt{tmt} }
+\newcommand{\tdist}[1]{\textit{t}_{ \text{\tiny{#1}} } }
+\newcommand{\SSm}[1]{ \texttt{SS}_\texttt{#1} }
+\newcommand{\MSm}[1]{ \texttt{MS}_\texttt{#1} }
+\newcommand{\betaw}{ \beta^{ \texttt{\tiny{(LP)}} } }
+\newcommand{\betas}{ \beta^{ \texttt{\tiny{(SP)}} } }
+
+
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\theoremstyle{plain}
+\newtheorem{propi}{Propiedad}[teo]
+\theoremstyle{plain}
+\newtheorem{cor}{Corolario}[teo]
+\theoremstyle{definition}
+\newtheorem{defn}{Definición}
+\theoremstyle{definition}
+\newtheorem{ej}{Ejemplo}
+\theoremstyle{definition}
+\newtheorem{prop}{Proposición}
+\theoremstyle{remark}
+\newtheorem{obs}{Observación}
+
+\begin{document}
+
+\tableofcontents
+
+\appendix
+\setcounter{chapter}{1}
+\chapter{Gráfica de Probabilidad Normal}\label{apend:graf_prob_normal}
+
+
+
+% INTRODUCCIÓN
+La gráfica de probabilidad normal o gráfica 
+cuantil-cuantil normal es un método 
+gráfico que permite 
+comparar los datos empíricos de 
+una distribución contra los datos teóricos
+de la distribución normal. 
+
+La gráfica de probabilidad normal 
+puede usarse para obtener distintos
+resultados:
+\begin{itemize}
+  \item Identificar si la distribución de los 
+  datos es Normal. 
+  \vspace{-.3cm}
+  \item Estimar los parámetros de variables 
+  distribuidas Normal.
+  \vspace{-.3cm}
+  \item Detectar simetría de una distribución empírica.
+  \vspace{-.3cm}
+  \item Detectar datos atípicos o significativos. 
+\end{itemize}
+
+\vspace{-.1cm}
+En esta tesis, la gráfica de probabilidad
+normal se usa para detectar datos atípicos
+en algunos diseños 
+sobre los efectos de los factores e interacciones
+y validar el supuesto de distribución 
+normal del error aleatorio. 
+ 
+La forma en que se construye es ajustando 
+la escala de la distribución normal acumulada.
+Se gráfica la probabilidad acumulada observada o 
+empírica contra los valores teóricos de 
+la distribución normal. Si los datos siguen 
+una distribución normal, los puntos quedan 
+aproximadamente escribiendo una línea recta. 
+
+%DISTRIBUCIÓN NORMAL
+\section{Distribución Normal Acumulada}
+Se define una variable aleatoria $Y$ de 
+dimensión $n$, tal que 
+$Y \sim \Normal ( \mu, \sigma^2 )$
+Donde $\mu$ es el parámetro de la media y 
+se define $-\infty < \mu < \infty$. La varianza se 
+determina por el parámetro $\sigma^2$ tal que
+$\sigma > 0$. Además, la función de 
+distribución se define como:
+\[
+f(y)=
+\frac{1}{\sqrt{2\pi}}
+\exp^{
+-\left\{ 
+\frac{1}{2}
+\left(
+\frac{y-\mu}{\sigma} 
+\right)^2
+\right\}
+}
+\]
+La acumulación de la distribución se
+obtiene con la integración de la función de la
+distribución. En la Figura \ref{fig:ap2_distnormal_graf}
+se muestra la forma de la distribución acumulada 
+de $Y$.
+<<ap2_distnormal_graf, fig.align='center',echo=FALSE, fig.height=2.3, fig.width=3, fig.cap="Función de distribución acumulada Normal", fig.pos="!h", fig.lp = "fig:">>=
+library(ggplot2)
+library(reshape2)
+library(plyr)
+theme_set(theme_bw())
+set.seed(108702)
+acum <- unique( round(
+  pnorm(seq(-3.5,3.5, .1), mean = 0, sd = 1) ,3) )
+tab.norm.acum <- data.frame(ind = 1:length(acum), acum)
+media <- which(tab.norm.acum$acum == .5)
+sd1.neg <- max(which(tab.norm.acum$acum <= .159))
+sd1.pos <- min(which(tab.norm.acum$acum >= .841))
+sd2.neg <- max(which(tab.norm.acum$acum <= .0225))
+sd2.pos <- min(which(tab.norm.acum$acum >= .9775))
+sd3.neg <- max(which(tab.norm.acum$acum <= .002))
+sd3.pos <- min(which(tab.norm.acum$acum >= .998))
+ggplot(tab.norm.acum, aes(x = ind, y = acum) ) + 
+  geom_line(size = .6) +
+  scale_y_continuous(label = function(x)round(x,2)) + 
+  ylab("probabilidad\nacumulada") + 
+  xlab("escala normal") +
+  geom_segment(x = media, y = 0, xend = media, yend = .5, 
+               linetype = 2, size = .2) + 
+  geom_segment(x = 0, y = .5, xend = media, yend = .5, 
+               linetype = 2, size = .2) + 
+  scale_x_continuous(breaks = c(sd3.neg, sd2.neg, sd1.neg, 
+                                media, 
+                                sd1.pos, sd2.pos, sd3.pos), 
+                     labels = c( expression(mu-3*sigma),
+                                 expression(mu-2*sigma),
+                                 expression(mu-sigma),
+                                 expression(mu),
+                                 expression(mu+sigma),
+                                 expression(mu+2*sigma),
+                                 expression(mu+3*sigma))
+                                 ) + 
+  theme(axis.text.x = element_text(size = 5.5),
+        axis.text.y = element_text(size = 7)) 
+@
+
+Por la definición $Y$ con distribución normal y como se 
+pude ver en la Figura \ref{fig:ap2_distnormal_graf}
+la probabilidad de que las observaciones estén contenidas
+en el intervalo $\mu\pm\sigma$ es del 68.2\%, 
+así como el intervalo $\mu\pm2\sigma$ es del 95\%.
+
+La escala de la acumulación de probabilidad 
+se modifica de tal forma que el espacio
+entre los intervalos es equidistante y la 
+forma de la acumulación es una línea recta 
+como se muestra en la Figura \ref{fig:ap2_qqplot_graf}.
+<<ap2_qqplot_graf, fig.align='center',echo=FALSE, fig.height=2.3, fig.width=3, fig.cap="Escala modifica de la función de distribución acumulada Normal", fig.pos="!h", fig.lp = "fig:">>=
+set.seed(108702)
+tab <- data.frame(samp = rnorm(n=1000, mean=0, sd=1))
+ggplot( tab, aes( sample = samp) ) + 
+  stat_qq(distribution = qnorm, size = 1) +
+  geom_segment(x = 0, y = -4, xend = 0, yend = 0, 
+               linetype = 2, size = .2) + 
+  geom_segment(x = -4, y = 0, xend = 0, yend = 0, 
+               linetype = 2, size = .2) + 
+  scale_x_continuous(breaks = c(-3,-2,-1,0,1,2,3), 
+                     labels = c( expression(mu-3*sigma),
+                                 expression(mu-2*sigma),
+                                 expression(mu-sigma),
+                                 expression(mu),
+                                 expression(mu+sigma),
+                                 expression(mu+2*sigma),
+                                 expression(mu+3*sigma))
+                                 ) + 
+  scale_y_continuous(breaks = c(-3,-2,-1,0,1,2,3),
+                     labels = round(c(.002, .0225,.159,.5,.841,.9775,.998),2)) + 
+  ylab("probabilidad\nacumulada") + xlab("escala normal") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)) 
+@
+
+
+
+
+
+\section{Distribución Acumulada Empírica}
+En esta sección se describe el método para obtener la 
+distribución acumulada empírica para 
+una muestra $\{X\}_n$ de tamaño $n$, 
+donde $\{X\}_n = x_1,x_2, \ldots, x_n$. 
+
+Para encontrar la distribución acumulada es necesario, en 
+primer lugar, ordenar los elementos de la muestra 
+de menor a mayor. Los elementos de la muestra ordenada
+se indican entre corchetes, de tal forma que:
+\[
+x_{(1)}< x_{(2)} < \ldots < x_{(n-1)} < x_{(n)} 
+\]
+
+Por último, para determinar la acumulación empírica se sigue
+la siguiente ecuación para el $i$-ésimo elemento:
+\[
+P_i = 
+\frac{\left( i - \frac{1}{2}\right)}
+{n}
+\]
+Donde $i = 1, \ldots, n$ es el elemento de la
+muestra ordenada. 
+
+El vector final $P$ es la acumulación de la distribución 
+por cada elemento de la muestra $X$.
+
+\section{Gráfica de Probabilidad Normal}
+Finalmente en la gráfica de probabilidad normal se
+grafican ambas observaciones. En el eje y la 
+escala modificada de la probabilidad de la distribución 
+normal y en el eje x la distribución acumulada 
+empírica. Para cada observación se grafica el vector P
+sobre la escala transformada de la distribución 
+normal.
+
+Es común que únicamente se muestre sobre el 
+eje de la escala normal las desviaciones estándar
+de distancia a la media, es decir, la escala normal 
+estandarizada. 
+En la Figura \ref{fig:ap2_grafprobnorm_final_graf} se
+muestra un ejemplo de la gráfica de probabilidad normal 
+para una muestra aleatoria. En el eje x se encuentran las
+observaciones y en el eje y la escala normal.
+Para verificar la distribución normal en la muestra $X$ se
+debe ver una línea recta con mayor densidad en el área
+cercana a 0 en la escala normal. 
+<<ap2_grafprobnorm_final_graf, fig.align='center',echo=FALSE, fig.height=2.3, fig.width=3, fig.cap="Gráfica de probabilidad Normal", fig.pos="!h", fig.lp = "fig:">>=
+set.seed(108702)
+tab <- data.frame(samp = c(rnorm(n=1000, mean=5.5, sd=5), runif(5)) )
+ggplot( tab, aes( sample = samp) ) + 
+  stat_qq(distribution = qnorm, size = 1) + 
+  ylab("observado") + xlab("escala normal") 
+@
+
+
+Aunque no es un uso que se le de a la gráfica de 
+probabilidad normal en esta tesis, 
+previamente se dijo que la gráfica puede usarse para 
+estimar los parámetros de la distribución 
+empírica. Esto se cumple y es sencillo si 
+la distribución se asemeja a la normal. 
+La media $\mu$ es sencilla de estimar considerando 
+que para la distribución normal el valor de la media 
+y la mediana es muy similar, por lo tanto el valor central 
+es una buena estimación. La desviación estándar $\sigma$ también 
+se puede estimar calculando la pendiente de 
+la recta.
+
+Para detectar la simetría de la distribución empírica se puede
+ver la densidad de las colas. En caso de verse una forma 
+similar al de la letra S se concluye que la 
+distribución no es simétrica. 
+
+Finalmente, el uso que se le da en esta tesis es para detectar 
+datos atípicos o efectos significativos que 
+se alejan del supuesto de distribución normal con media cero. 
+Los efectos que salgan de la línea recta rompen este supuesto 
+y se puede decir que se distinguen de los demás.
+
+\section{Gráfica de Probabilidad Semi-Normal}
+La gráfica semi-normal es muy similar a la gráfica de
+probabilidad normal, la única diferencia es que 
+toma el valor absoluto de los valores de $Y$ y 
+sobre estos ordena la muestra y obtiene el 
+vector $P$ de distribución acumulada empírica. 
+
+Box et al. (2008, Capítulo 5.14)\cite{Box2008} 
+menciona esta gráfica
+siguiendo la propuesta original de Daniel 
+\emph{Use of Half Normal Plots in 
+Interpreting Factorial Two Level Experiments} 
+(1959)\cite{Daniel1959}
+como método de 
+diagnóstico. Este método, además, es útil para detectar si la 
+aleatorización del experimento no es eficiente, así como
+si los resultado son anómalos o se rompe el supuesto de 
+independencia de la media y la varianza. 
+
+% BIBLIOGRAFÍA
+\bibliography{../../Tesis_biblos}
+\bibliographystyle{plain}
+\end{document}

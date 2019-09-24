@@ -1,0 +1,5 @@
+
+model{
+  y ~ dbin(p, 20)
+  p ~ dunif(0, 1)
+}

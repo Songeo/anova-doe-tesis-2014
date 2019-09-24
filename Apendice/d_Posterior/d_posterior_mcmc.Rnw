@@ -1,0 +1,1123 @@
+\documentclass{book}
+
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,latexsym,epsfig} 
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,mexico]{babel}
+\usepackage[top = 2.5 cm]{geometry}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage{amsthm}
+
+
+
+\pagestyle{fancyplain}
+\parskip=10pt %espacio entre párrafos
+\hoffset=0cm%-0.75cm%-20pt %1in +\hoffset
+\voffset=-1cm%-20pt %1in +\voffset
+\marginparwidth=0cm %ancho del margen izq.
+\oddsidemargin=0.5cm
+\evensidemargin=-0.41cm
+\textheight=23cm%700pt %medida de la p·g 595
+\textwidth=16.5cm%515pt %medida de la p·g 495
+\headheight=12pt \marginparsep=0cm \footskip=36pt \topmargin=0cm
+\headsep=16pt %\marginparpush=0pt
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries \thepage}]{\fancyplain{}{\bfseries \sl \rightmark}} \chead{} 
+\rhead[\fancyplain{}{\bfseries \sl \leftmark}]{\fancyplain{}{\bfseries \thepage}} 
+\pagestyle{fancy}  
+\lhead[\fancyplain{}{\small \rm \thepage}]{\fancyplain{}{\small \sl \rightmark}} 
+\rhead[\fancyplain{} {\small \sl \leftmark}] {\fancyplain{}{\small \rm \thepage}} 
+\lfoot{} \cfoot{} \rfoot{}
+
+\linespread{1.5}
+\setlength{\belowdisplayskip}{1.5pt} \setlength{\belowdisplayshortskip}{1.5pt}
+\setlength{\abovedisplayskip}{1.5pt} \setlength{\abovedisplayshortskip}{1.5pt}
+
+\newcommand{\tmt}[1]{\texttt{tratamiento #1}}
+\newcommand{\AOV}{\texttt{ANOVA}}
+\newcommand{\nota}[1]{\textcolor{red}{Nota: \texttt{#1} } } 
+\newcommand{\doe}{\text{diseño de experimentos}}
+\newcommand{\Hi}[1]{\texttt{H}_{#1} }
+\newcommand{\Normal}{\texttt{N}}
+\newcommand{\chisquared}[1]{\chi_{ \text{\tiny{(#1)}} }^2}
+\newcommand{\Fdist}[1]{\text{F}_{ \text{\tiny{#1}} } }
+\newcommand{\E}{\texttt{E} }
+\newcommand{\SST}{ \texttt{SS}_\texttt{T} }
+\newcommand{\SStmt}{ \texttt{SS}_\texttt{tmt} }
+\newcommand{\SSe}{ \texttt{SS}_\texttt{E} }
+\newcommand{\strat}[1]{ (n-1) \hat{\sigma}_{ \texttt{en } #1}^2 }
+\newcommand{\MSe}{ \texttt{MS}_\texttt{E} }
+\newcommand{\MStmt}{ \texttt{MS}_\texttt{tmt} }
+\newcommand{\tdist}[1]{\textit{t}_{ \text{\tiny{#1}} } }
+
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\theoremstyle{plain}
+\newtheorem{propi}{Propiedad}[teo]
+\theoremstyle{plain}
+\newtheorem{cor}{Corolario}[teo]
+\theoremstyle{definition}
+\newtheorem{defn}{Definici\'on}
+\theoremstyle{definition}
+\newtheorem{ej}{Ejemplo}
+\theoremstyle{definition}
+\newtheorem{prop}{Proposici\'on}
+\theoremstyle{remark}
+\newtheorem{obs}{Observaci\'on}
+
+
+% TESIS
+\begin{document}
+
+\tableofcontents
+
+\appendix
+\setcounter{chapter}{3}
+\chapter{Estimación de Distribución Posterior: 
+Métodos de simulación}\label{apend:sim_posterior}
+
+En éste apéndice se describen los distintos métodos de simulación 
+para aproximar la distribución posterior, se dan la ventajas y desventajas de cada 
+método y por último, se resuelve un ejemplo por cada método descrito. 
+
+La estimación de la distribución posterior que describe los valores de los 
+parámetros tomando la información de los datos y la distribución a priori
+que se le otorga a los parámetros inicialmente. 
+\[
+P(\theta|Y) = 
+\frac{P(Y|\theta)P(\theta)}{P(Y)} 
+\]
+Sea $\theta$ el vector de parámetros, 
+$P(Y|\theta)$ la distribución de los datos 
+originales dado los parámetros, $P(\theta)$ la distribución a priori de 
+los parámetros y $P(Y)$ la distribución marginal de los datos. 
+La distribución posterior se aproxima con 
+la distribución proporcional  
+$P(X, \theta) \propto P(X|\theta)P(\theta)$\footnote{Se detalla
+más sobre la distribución posterior y lo antes 
+mencionado en el Apéndice \ref{apend:estad_bayes}.}. 
+
+Se describen cuatro métodos distintos 
+para encontrar la distribución posterior:
+\vspace{-.6cm}
+\begin{enumerate}
+  \item Solución Analítica
+  \vspace{-.2cm}\item Aproximación Grid
+  \vspace{-.2cm}\item Monte Carlo
+  \vspace{-.2cm}\item Cadenas de Markov Monte Carlo
+  \begin{enumerate}
+    \vspace{-.2cm}\item Metropolis
+    \vspace{-.2cm}\item Muestreador de Gibbs
+  \end{enumerate}
+\end{enumerate}
+
+
+%Analítica
+\section{Solución Analítica}
+El primer método es por solución analítica del Teorema de Bayes:
+\begin{equation}\label{eq:bayes}
+P(\theta | y)  = 
+\frac{P(y|\theta) P(\theta)}
+{P(y) }
+\end{equation}
+
+El numerador se resuelve con el producto de la distribución de verosimilitud y
+la conjunta de las distribuciones a priori suponiendo un vector de $\theta$. 
+El denominador se obtiene resolviendo la integral analíticamente o bien la sumatoria 
+dependiendo del espacio de la distribución.
+
+La desventaja de este método es sobre 
+la solución de la integral muchas veces es 
+difícil o imposible de resolver analíticamente. 
+Pero resulta útil en algunos casos, como el de familias de distribución 
+conjugadas, en los que es sencillo encontrar la densidad de la posterior y 
+los parámetros de esta distribución.
+
+Para los casos donde el cálculo de la distribución 
+marginal es imposible de obtener, 
+se pueden emplear los métodos siguientes.
+
+
+% APROXIMACION GRID
+\section{Aproximación Grid}
+Este método de aproximación asume que el vector $\theta$ de parámetros 
+es discreto, aún si se asume que se distribuye de forma continua.  
+La suma del denominador del Teorema de Bayes \ref{eq:bayes} toma valores finitos 
+dentro del rango de $\theta$ para obtener la distribución marginal de los
+datos. 
+De forma que el Teorema de Bayes en se resuelve para el caso discreto: 
+\begin{equation}\label{eq:bayes_disc}
+P(\theta | y)  = 
+\frac{P(y|\theta) P(\theta)}
+{\sum_{\theta} P(y|\theta) P(\theta) }
+\end{equation}
+La ventaja de este método es la sencillez que aporta al expresar 
+distribuciones de forma discreta y más importante es la libertad de asignar 
+cualquier distribución posterior, ya que, aunque muchas distribuciones son difíciles 
+de integrar se puede hacer una aproximación por medio de la discretización. 
+
+La desventaja es cuando los parámetros 
+tienen un rango muy amplio y el proceso
+puede tomar bastante tiempo. Además, si se 
+desea mayor precisión los cortes de la discretización 
+son más delgados, por lo tanto,
+el proceso toma más tiempo para 
+encontrar la aproximación de la distribución. 
+
+Por último, la desventaja más severa es cuando se 
+tienen varios parámetros. Hasta este 
+punto sólo se había considerado el rango de un solo 
+parámetro, al momento de incluir 
+un vector de parámetros es necesario primero determinar 
+el rango de la distribución 
+conjunta de los parámetros aumentando la complejidad del proceso. 
+
+
+
+% MC
+\section{Aproximación Monte Carlo}
+Una alternativa es emplear los métodos Monte Carlo, 
+que aproximan la distribución objetivo
+o distribución posterior, en éste caso. La forma en 
+que se aproxima es generando un 
+gran número de valores representativos de la 
+distribución por medio de simulaciones.
+
+% MCMC
+\section{Monte Carlo con Cadenas de Markov}
+Uno de los métodos más usados para encontrar la distribución posterior 
+es usando el método Monte Carlo con Cadenas de Markov
+(MCMC) que consiste, en dar valores de los parámetros desconocidos
+$\theta$ con distribuciones aproximadas y corregir la evaluación para aproximar 
+las simulaciones a la distribución objetivo o la distribución posterior. 
+Es una cadena de Markov por el proceso iterativo de imputación de los parámetros, 
+la cadena se mueve sobre el espacio parametral de $\theta$. 
+
+Por la definición de una cadena de 
+Markov\footnote{Se profundiza sobre las cadenas de Markov y 
+las propiedades de este proceso estocástico así como términos citados en este
+capítulo en la sección Cadenas de Markov.} se sabe que los valores son ligeramente 
+dependientes entre ellos, la idea del método funciona 
+no tanto por la propiedad de Markov, pero por las correcciones que 
+a largo plazo da resultados estables y convergentes. 
+
+La convergencia y estabilidad se fundamenta 
+en el Teorema Ergódico, similar a la 
+Ley de Grandes Números (LLN), el Teorema Ergódico 
+permite asegurar que las 
+evaluaciones se obtienen de la distribución estacionaria bajo
+ciertas condiciones sin importar la dependencia entre ellas mismas.
+
+\begin{teo}[Ergódico] 
+  \label{teo:ergodico}
+  Sean $\theta = \{\theta^{(1)}, 
+  \theta^{(2)}, \ldots, \theta^{(M)}\}$
+  distintas evaluaciones de una cadena de Markov
+  aperiódica, irreducible y recurrente positiva 
+  tal que que $\E_{\pi} [g(x)] < \infty$, donde 
+  $\pi$ representa la distribución estacionaria,
+  entonces con  probabilidad 1:
+  \[
+  \frac{1}{M}
+  \sum_{i=1}^M g(\theta_i) \rightarrow
+  \int_{\theta} g(\theta)\pi(\theta)
+  \partial \theta = 
+  \E_{\pi}[g(\theta)]
+  \]
+  \quad donde $M \rightarrow \infty$
+\end{teo}
+
+
+Existen distintos métodos de \textbf{MCMC}, 
+en éste caso se profundiza en dos: Método Metrópolis-Hastings y 
+el Muestreador de Gibbs.
+
+% Metropolis
+\subsection{Metropolis}
+El método Metropolis parte de la distribución posterior obtenida como la 
+proporcional de la verosimilitud y la priori:
+\[
+P(\theta | y)  \propto P(y|\theta) P(\theta)
+\]
+
+El objetivo es evaluar la distribución proporcional en un punto 
+arbitrario del espacio parametral, de preferencia donde la distribución 
+posterior de $\theta$ no tome valores igual a cero. 
+
+Después obtener la evaluación en el punto arbitrario, 
+se realiza una propuesta de salto a distintos estados de 
+la caminata, esta propuesta sigue una distribución determina 
+a la que se conoce como la distribución de propuestas:
+\[
+\theta_{\texttt{prop}} \sim Q
+\]
+En este caso $Q$ debe ser simétrica. El caso Metropolis-Hastings admite cualquier
+distribución pero se debe hacer una corrección en el criterio para tomar la decisión 
+de aceptar o no aceptar la nueva propuesta, se profundiza sobre esto más adelante. 
+ 
+Con esta propuesta, se evalúa la posibilidad de cambiar de estado siguiendo la regla 
+que determina la probabilidad de mover al siguiente estado o mantenerse en el estado actual:
+\[
+P(\theta_{\texttt{mover}}) = 
+\min \left(
+\frac
+{P(\theta_{ \texttt{prop} })}
+{P(\theta_{\texttt{actual} })}, 1
+\right)
+\]
+Donde $P(\theta)$ es la probabilidad posterior del parámetro $\theta$.
+
+Esto es, si la densidad propuesta es mayor a la densidad de la evaluación
+actual $P(\theta_{ \texttt{prop} }) > P(\theta_{ \texttt{actual} })$ y 
+$P(\theta_{ \texttt{prop} }) /P(\theta_{ \texttt{actual} }) > 1$ entonces la 
+probabilidad de mover es igual a uno, se acepta la propuesta y se da el paso 
+al siguiente estado. De esta forma se favorecen los puntos donde la distribución es
+más densa y cada valor se aproxima a la distribución posterior.
+
+De lo contrario si $P(\theta_{ \texttt{prop} }) < P(\theta_{ \texttt{actual} })$ y 
+$P(\theta_{ \texttt{prop} }) /P(\theta_{ \texttt{actual} }) < 1$ se toma 
+una \emph{decisión probabilistica}. 
+
+La decisión probabilistica se refiere tomar la decisión de movimiento generando una 
+realización $u$ de distribución uniforme [0, 1]. Si este número $u$ esta entre 0 y
+$P(\theta_{\texttt{mover}}) < 1$ entonces se realiza el movimiento. Es decir, 
+se toma una decisión aleatoria donde si $P(\theta_{\texttt{mover}})$ es 
+grande la probabilidad de aceptar es mayor y se favorece a los puntos con 
+mayor densidad. 
+Por lo tanto, se observa una caminata aleatoria en la que se calcula una 
+evaluación de la distribución de propuesta $Q$, la distribución objetivo $P$ y la 
+distribución uniforme en cada paso.
+
+La caminata que se genera de realizar el proceso 
+tiene como característica un comportamiento 
+ligeramente independiente de los pasos anteriores, 
+únicamente dependerá del valor en el que se está 
+evaluando, es decir, el valor actual. 
+Por esto se concluye que tiene el comportamiento 
+de una cadena de Markov.
+
+
+
+
+\subsection{Metropolis-Hastings}
+El caso Metropolis-Hastings es la generalización de Metropolis y $Q$ puede ser 
+cualquier función, de tal forma que:
+\[
+\theta_{\texttt{prop}} \sim Q(\theta_{(t)} | \theta_{(t-1)})
+\]
+Donde $t = \{1, 2, \ldots, M\}$ representa cada simulación.  
+
+La nueva probabilidad para tomar la decisión de mover al siguiente estado 
+se define a continuación:
+\[
+P(\theta_{\texttt{mover}}) = 
+\min \left(
+\frac
+{P(\theta_{ \texttt{prop} })}
+{P(\theta_{ \texttt{actual} })}
+\cdot \frac
+{Q(\theta_{\texttt{prop}} | \theta_{\texttt{actual}}) }
+{Q(\theta_{\texttt{actual}} | \theta_{\texttt{prop}})}, 1
+\right)
+\]
+
+Una vez que se tiene esta probabilidad, el proceso es el mismo que Metrópolis.
+
+Es importante poner atención en la distribución de propuestas y buscar que 
+la distribución sea similar a la posterior para obtener con mayor rapidez 
+la convergencia. Una distribución muy estrecha o amplia puede presentar 
+un problema al tener una tasa de rechazo de valores muy alta y tomar 
+demasiado tiempo explorando la distribución.
+
+
+
+
+%MUESTREADOR DE GIBBS
+\subsection{Muestreador de Gibbs}
+Por último, el Muestreador de Gibbs es un método 
+en el que la forma de muestrear cambia, aunque la idea es 
+generar una caminata aleatoria. El cambio de estado 
+es ahora por medio de las distribuciones posteriores condicionales para cada 
+parámetro:
+\[
+P(\theta_i | \theta_{j \neq i}, y ) 
+\]
+
+La ventaja y desventaja de éste método es que está limitado 
+cuando se tiene más de un parámetro. El objetivo principal 
+es generar la cadena, pero en cada paso se evalúa un 
+parámetro distinto cíclicamente, es decir, en cada paso 
+siguiente se toma la estimación obtenida en el 
+paso anterior y así sucesivamente. El paso 
+siguiente depende del momento actual, con esto se 
+registra el comportamiento markoviano.
+
+Se dice que es un caso específico de
+Metropolis porque la distribución 
+de propuestas depende de donde se esté en el espacio 
+parametral y el siguiente 
+valor es la probabilidad posterior de la condicional 
+en ese punto o para ese parámetro. 
+Como esta distribución refleja la distribución 
+posterior para ese parámetro 
+entonces el valor de la propuesta siempre es aceptado.
+
+Lo principal en este caso es que las distribuciones posteriores condicionales sean 
+relativamente sencillas de obtener, o  bien,  más sencilla de obtener que 
+la distribución posterior completa. 
+
+Es importante tener cuidado cuando los parámetros 
+están correlacionados porque la 
+distribución que representa es muy estrecha 
+y dar el paso en la cadena para no 
+salir de la distribución debe ser un paso corto por lo 
+que la convergencia se alenta.
+
+Para entender mejor este método, 
+Kruschke (2011, Capítulo 8.4)\cite{Kruschke2011}
+lo ejemplifica para el caso de dos parámetros $\theta_1$ y $\theta_2$. 
+
+Gráficamente se entiende el proceso del 
+Muestreador de Gibbs como una forma 
+cíclica de cortar rebanadas de la posterior 
+fijando un valor de cada parámetro. 
+En este caso, se el Muestreador de Gibbs tiene dos pasos, fijando 
+cada uno de los dos parámetros. 
+<<ap4_post_thetas_data, fig.height=5, fig.width=5, out.height='8cm', out.width='7cm', fig.align='center',fig.cap='Distribución posterior', fig.lp="fig:",echo=FALSE>>=
+# lets first simulate a bivariate normal sample
+library(MASS)
+library(graphics)
+mu1 <- 1  # expected value of x
+mu2 <- 0  # expected value of y
+sig1 <- .7  # variance of x
+sig2 <- .7 # variance of y
+rho <- 0	# corr(x, y)
+# Some additional variables for x-axis and y-axis 
+xm <- -3
+xp <- 3
+ym <- -3
+yp <- 3
+x <- seq(xm, xp, length= as.integer((xp + abs(xm)) * 10))  # vector series x
+y <- seq(ym, yp, length= as.integer((yp + abs(ym)) * 10))  # vector series y
+# Core function
+bivariate <- function(x,y){
+  term1 <- 1 / (2 * pi * sig1 * sig2 * sqrt(1 - rho^2))
+  term2 <- (x - mu1)^2 / sig1^2
+  term3 <- -(2 * rho * (x - mu1)*(y - mu2))/(sig1 * sig2)
+  term4 <- (y - mu2)^2 / sig2^2
+  z <- term2 + term3 + term4
+  term5 <- term1 * exp((-z / (2 *(1 - rho^2))))
+  return(term5)
+}
+# Computes the density values
+z <- outer(x,y,bivariate)
+# Plot
+@ 
+
+En la Figura \ref{fig:ap4_post_theta1} se observa 
+la distribución posterior dado los parámetros 
+$\theta_1$ y $\theta_2$. EL punto representa 
+un valor aleatorio de $\theta_1$ condicionado a un 
+valor de $\theta_2$. 
+La línea gruesa representa un corte de la distribución 
+posterior, es decir, la distribución condicional de  $\theta_1$
+condicional a los valores de $\theta_2$. 
+<<ap4_post_theta1, fig.height=5, fig.width=5, out.height='8cm', out.width='7cm', fig.align='center',fig.cap='Distribución Posterior dado theta 1', fig.lp="fig:",echo=FALSE, fig.pos="!h">>=
+persp(x, y, z, main = "Distribución Posterior",
+      col="white", 
+      theta = -25, phi = 20, 
+      r = 12, d = 0.3, 
+      expand = 0.7, 
+      ltheta = 500, lphi = 500, shade = 0.01,
+      ticktype = "simple",
+      xlab = expression(theta1),
+      ylab = expression(theta2),
+      zlab= expression(P(t1, t2|y)),
+      axes=T, border="darkgray", box = T) -> pp
+lines (trans3d(x = x , y = y[20], z = bivariate(x,y[20]) , pmat =  pp), col = "black")
+lines (trans3d(x = x , y = y[20], z = 0 , pmat =  pp), col = "black")
+points (trans3d(x = x[30] , y = y[20] , z = 0 , pmat =  pp), col = "black", pch = 16)
+@
+
+En la Figura \ref{fig:ap4_post_theta2} se observa ahora 
+un valor aleatorio de $\theta_2$ obtenido de la distribución
+del parámetro $\theta_2$ condicional a $\theta_1$. El 
+corte con línea oscura sobre la distribución posterior
+representa la distribución condicional 
+de $\theta_2$ sobre un valor de $\theta_1$.
+<<ap4_post_theta2, fig.height=5, fig.width=5, out.height='8cm', out.width='7cm', fig.align='center',fig.cap='Distribución posterior dado theta 2', fig.lp="fig:",echo=FALSE, fig.pos="!h">>=
+persp(x, y, z, main = "Distribución Posterior",
+      col="white", 
+      theta = -25, phi = 20, 
+      r = 12, d = 0.3, 
+      expand = 0.7, 
+      ltheta = 500, lphi = 500, shade = 0.01,
+      ticktype = "simple",
+      xlab = expression(theta1),
+      ylab = expression(theta2),
+      zlab= expression(P(t1, t2|y)),
+      axes=T, border="darkgray", box = T) -> pp
+lines (trans3d(x = x[30] , y = y, z = bivariate(x[30],y) , pmat =  pp), col = "black")
+lines (trans3d(x = x[30] , y = y, z = 0 , pmat =  pp), col = "black")
+points (trans3d(x = x[30] , y = y[20] , z = 0 , pmat =  pp), col = "black", pch = 16)
+@
+
+
+El proceso es cíclico se repite hasta cubrir 
+la densidad de la distribución posterior. Por esto,
+es necesario tener las distribuciones condicionales 
+de cada parámetro. Es decir, para $\theta_1$ la 
+distribución condicional $P(\theta_1 | \theta_2, y)$ 
+y para $\theta_2$ la distribución 
+condicional de $P(\theta_2 | \theta_1, y)$.
+
+Estos métodos de simulación y estimación de la distribución posterior 
+tienen distintas ventajas y desventajas, el propósito no es tomar uno y 
+realizar todas las estimaciones con ese, de hecho eso casi nunca sucede, 
+lo mejor es encontrar los casos en los que la solución sea la más eficiente. 
+
+Programas como \textsf{JAGS}\cite{Plummer2012rjags} usan 
+diversos métodos para aproximar la distribución 
+posterior. Además tienen métodos para asegurar convergencia y escoger 
+puntos de inicio mejor ubicados para obtener la convergencia con mayor 
+velocidad. 
+
+A continuación se analiza un ejemplo por medio de los distintos métodos 
+con la idea de mostrar con mayor facilidad lo que cada método realiza. 
+
+
+
+\section{Cadena de Markov}
+Para entender lo que es una cadena de Markov es necesario entender que 
+una cadena de Markov es un proceso estocástico y un proceso estocástico es una colección 
+de variables aleatorias parametrizadas por un espacio parametral con valores en un 
+conjunto llamado \textbf{espacio de estados}. Los distintos procesos se obtienen 
+al considerar las distintas posibilidades para el espacio muestral,
+espacio de estados, trayectorias y relaciones de dependencia entre las variables 
+aleatorias.
+
+Específicamente, una cadena de Markov es un proceso estocástico en el que
+los estados futuros son independientes a los estados pasados dado el presente.
+
+\textbf{Propiedad de Markov}
+\[
+P(\theta^{(t+1)} | 
+\theta^{(1)}, \theta^{(2)}, \ldots, \theta^{(t)}) = 
+P(\theta^{(t+1)} | \theta^{(t)})
+\]
+Para el momento en el tiempo $t$, donde $t = \{0,1, \ldots\}$
+
+Por lo tanto, la cadena representa un conjunto de evaluaciones que son 
+ligeramente dependientes a la evaluación anterior. 
+Se distribuye por todo el espacio del parámetro pero solo 
+'recuerda' el último momento en el que estuvo.
+
+La probabilidad de movimiento a los demás estados está determinada por la
+\textbf{matriz de transición} [$\mathrm{P}$] si está en espacio discreto. 
+O bien, en espacio continuo, se determina por el \textbf{kernel de transición}
+que contiene la función de distribución condicional: 
+$f(\theta_j^{(t+1)} | \theta_i^{(t)})$
+
+También se mencionó la distribución estacionaria como forma 
+de obtener la evaluaciones de la distribución posterior. 
+Una \textbf{distribución estacionaria} [$\pi$] es una distribución de probabilidades 
+a los demás estados, tal que:
+\[
+\pi = \pi \mathrm{P}
+\texttt{ y específicamente  }
+\pi_j = \sum_{i \in S} \pi_j \mathrm{P}_{ij}
+\]
+Esta distribución es importante por que en los métodos MCMC que usamos para calcular 
+la distribución posterior: la cadena converge a $\pi$ sin importar el valor
+donde inicia la cadena.
+
+Es decir, existe una cadena de Markov 
+con una distribución estacionaria $\pi$ que es la 
+distribución objetivo o la distribución posterior
+$P(\theta|y)$. Lo que interesa son 
+las evaluaciones de esta cadena que cada valor 
+aproxima a la distribución posterior una 
+vez que converge. 
+
+Una cadena ergódica se refiere a una cadena a periódica, 
+irreducible y recurrente positiva:
+\begin{description}
+  \item [Aperiódica] Se dice que la 
+  cadena es aperiódica cuando el tiempo 
+  que toma repetir un ciclo de estados uno. 
+  
+  \item [Irreducible] Cuando se puede acceder 
+  a un estado desde cualquier otro. 
+  
+  \item [Recurrente positiva] Cuando el tiempo de 
+  retorno al estado $i$ tiene probabilidad uno y 
+  además es finito. 
+\end{description}
+
+
+Una vez que se tiene una cadena ergódica, entonces se puede recurrir al 
+\begin{teo}[Teorema Ergódico]
+  Teorema Ergódico que se menciono antes:
+  Sean $\theta = \{\theta^{(1)}, 
+  \theta^{(2)}, \ldots, \theta^{(M)}\}$
+  distintas evaluaciones de una Cadena de Markov
+  aperiódica, irreducible y recurrente positiva 
+  tal que que $\E_{\pi} [g(x)] < \infty$, donde 
+  $\pi$ representa la distribución estacionaria,
+  entonces con  probabilidad 1:
+  \[
+  \frac{1}{M}
+  \sum_{i=1}^M g(\theta_i) \rightarrow
+  \int_{\theta} g(\theta)\pi(\theta)
+  \partial \theta = 
+  \E_{\pi}[g(\theta)]
+  \]
+  \quad Donde $M \rightarrow \infty$
+\end{teo}
+
+
+
+
+
+% INICIO DE PARTE DE EJEMPLOS
+\section{Ejemplo}
+Se supone un experimento de lanzamiento de moneda en el que se obtiene $N$ veces sol. 
+Con esta información se busca calcular la probabilidad de tener una moneda
+sesgada al sol. Por lo tanto, sea $N$ una v.a. del número de 
+veces que se obtiene un sol, $r$ el número de volados que se lanzan y $p$ el sesgo 
+de la moneda a sol. 
+
+Se supone que el sesgo de la moneda tiene distribución uniforme, 
+\[
+f(p) \sim \texttt{Uniforme}(0, 1)
+\]
+<<ap4_obtener_paramsp,echo=FALSE>>=
+set.seed(80)
+# Distribución del sesgo de la moneda
+p <- runif(1)
+@
+Se realiza una muestra aleatoria en R de la función y la 
+probabilidad de sesgo de la moneda 
+que se obtiene es \Sexpr{ round(p, 2)}.
+
+
+Y la función de distribución del número de soles determinado por el sesgo es:
+\[
+f(N|p) \sim 
+\texttt{Binomial}(r, p) = 
+\left. {r}\choose{n} \right.
+p^n (1-p)^{r-n}
+\]
+<<ap4_obtener_paramsn, echo=FALSE>>=
+set.seed(102872)
+# Distribución de N número de soles con una moneda
+n <- rbinom(1,20,p)
+@
+De la misma forma, se realiza una muestra 
+muestra aleatoria de la función dado que la 
+probabilidad de sesgo es \Sexpr{round(p,2)} y se obtienen  
+\Sexpr{n} número de soles.
+
+El objetivo es calcular la probabilidad de que 
+la moneda este cargada a favor del sol,
+es decir la probabilidad de $p > 0.5$ dado 
+la evidencia obtenida del experimento. 
+El problema se reduce a obtener la distribución 
+posterior $f(p|N)$ y aproximar la 
+probabilidad dada esta función. 
+
+Se resuelve la distribucion posterior usando los métodos
+de aproximación antes explicados, a excepción 
+del muestreador de Gibbs en el que 
+se altera el ejemplo para tener dos 
+parámetros por estimar. 
+
+
+% SOLUCION ANALÍTICA
+\subsection*{Solución Analítica}
+Para obtener la distribución marginal de los datos:
+\[
+f(N) = 
+\left. {r}\choose{n} \right.
+\int_0^1
+p^n (1-p)^{r-n}  dp
+\]
+Donde $\Gamma(\alpha +1) = \alpha!$ para $\alpha \in \{1, 2, 3, \ldots \}$ entonces:
+\[
+f(N) = 
+\frac{\Gamma(r+1)}
+{\Gamma(n+1)\Gamma(r-n+1)} 
+\int_0^1
+\frac{\Gamma(n+1)\Gamma(r-n+1)}
+{\Gamma(n+1)\Gamma(r-n+1)}
+\frac{\Gamma(r+2)}
+{\Gamma(r+2)}
+p^{(n+1)-1} (1-p)^{(r-n+1)-1} dp = 
+\]
+\[
+=
+\frac{\Gamma(r+1)}
+{\Gamma(r+2)}
+\int_0^1
+\frac{1}
+{\texttt{B}(n+1, r-n+1)}
+p^{(n+1)-1} (1-p)^{(r-n+1)-1} dp =
+\frac{\Gamma(r+1)}
+{\Gamma(r+2)}
+\]
+Para obtener la distribución posterior se toma la idea de familia conjugada. Se 
+sabe que, en este caso particular, las distribuciones son miembros 
+de la misma familia conjugada, por lo tanto, la posterior se 
+distribuye \texttt{beta} por que la distribución a priori es  
+\texttt{uniforme} y la distribución del modelo es \texttt{beta}. 
+Para obtener los parámetros de la distribución posterior se resuelve,
+\[
+f(p|N) =
+\frac{f(N|p)f(p)}{f(N)} = 
+\frac{\Gamma(r+1)}
+{\Gamma(n+1)\Gamma(r-n+1)}
+\frac{\Gamma(r+2)}
+{\Gamma(r+1)} 
+p^n (1-p)^{(r-n)} = 
+\]
+\[
+= 
+\frac{1}
+{\texttt{B}(n+1, r-n+1)}
+p^{(n+1)-1} (1-p)^{(r-n+1)-1}
+\]
+Por lo tanto, 
+\[
+f(p|N) \sim
+\texttt{Beta}(n+1,r-n+1)
+\]
+En R se crea la función posterior
+dado la distribución Gamma que se dedujo analíticamente
+y se obtiene la Figura \ref{fig:ap4_apejemp_solucionanalitica}
+que es la distribución posterior. 
+<<ap4_apejemp_solucionanalitica, fig.height=4, fig.width=5, out.width='6cm', fig.align='center', fig.cap='Distribución Posterior del sesgo de la moneda', fig.pos='h!',fig.lp = "fig:">>=
+# Función de la distribución posterior
+posterior.fabrica <- function(n){
+  function(x) {
+		dbeta(x, n+1, 20-n+1)
+	}
+}
+mi.posterior <- posterior.fabrica(n)
+# Gráfica de la distribución posterior
+curve(mi.posterior, from = 0, to = 1, main= 'Distribución Posterior', xlab='', ylab='mi.posterior')
+@
+<<ap4_calculo_analitica, echo=FALSE>>=
+# Probabilidad dada la distribución beta
+p.analitica <- 1 - pbeta(0.5,n+1,20-n+1)
+@
+Por lo tanto, la probabilidad de tener 
+una moneda sesgada a sol es: 
+\Sexpr{ round(p.analitica,2)}
+
+
+% SOLUCION GRID
+\subsection*{Aproximación Grid}
+
+Usando el método grid, dada la distribución posterior \texttt{beta}, se separa
+el espacio parametral de $p$ en mil particiones:
+<<ap4_apejem_aproximacion_grid, fig.height=4, fig.width=5, out.width='6cm', fig.align='center', fig.cap='Distribución Posterior por Aproximación Grid', fig.pos='h!', fig.lp="fig:">>=
+# Particion del espacio parametral
+grid.theta <- seq(0,1,0.0001)
+# Evalución de la distribución posterior y del número que cumple la condicion en las particiones
+eval.posterior <- (grid.theta^n) * (  (1-grid.theta) ^(20-n)  )
+eval.post.norm <- eval.posterior/sum(eval.posterior)
+p.grid <- sum(eval.post.norm[grid.theta>0.5])
+plot(eval.post.norm , type='l', main = 'Grid de posterior', xlab = 'Densidad')
+@
+La probabilidad de tener 
+una moneda sesgada a sol bajo el método grid es: 
+\Sexpr{ round(p.grid,2)}
+
+
+
+
+
+% SOLUCION MONTE CARLO
+\subsection*{Aproximación Monte Carlo}
+Para este método, directamente de la distribución se simulan diez mil valores 
+de la distribución posterior y se obtiene el porcentaje de los casos que cumplen 
+la condición en el total de las simulaciones realizadas:
+<<ap4_apejem_aproximacion_montecarlo, fig.height=4, fig.width=5, out.width='6cm', fig.align='center', fig.cap='Distribución Posterior por Aproximación Monte Carlo', fig.pos='h!', fig.lp="fig:">>=
+# Simulación de la distribución posterior
+sims.posterior <- rbeta(5e5, n+1,20-n+1)
+hist(sims.posterior, breaks=80, xlim=c(0,1), freq=FALSE, main = "Histograma de Simulaciones", xlab = "simulaciones")
+p.mc <- sum(sims.posterior > 0.5)/5e5
+@
+La solución Monte Carlo de la probabilidad de tener 
+una moneda sesgada a sol es: 
+
+\Sexpr{ round(p.mc,2)}
+
+% SOLUCION METROPOLIS
+\subsection*{Aproximación Metrópolis}
+
+Con el método Metrópolis usando únicamente la distribución proporcional
+\[
+f(p|N) \propto
+(\theta^n) \cdot (1-\theta)^{(20-n)}
+\]
+<<ap4_apejem_aproximacion_metropolis, fig.height=4, fig.width=5, out.width='6cm', fig.align='center',fig.cap='Distribución Posterior por Aproximación Metropolis', fig.lp="fig:",fig.keep='all'>>=
+# Difinición de la función posterior
+f.1 <- function(theta, n){
+  ifelse(theta > 0 & theta < 1, (theta^n)*(1-theta)^(20-n),0)
+}
+# Definición de valores iniciales y parámetros
+step <- 0.3
+theta.actual <- runif(1)
+n.sims <- 1e5
+theta.sim <- rep(NA,n.sims)
+tasa.acept.acum <- rep(NA, n.sims)
+no.aceptados <- 0
+# Metrópolis
+for(i in 1:n.sims){
+	direccion.prop <- runif(1,-1,1)
+	theta.prop <- theta.actual + step*direccion.prop
+	prob.aceptar <- min(f.1(theta.prop, n)/f.1(theta.actual, n), 1)
+	resultado <- runif(1)
+	if(resultado < prob.aceptar){
+		theta.actual <- theta.prop
+		no.aceptados <- no.aceptados + 1
+	}
+	theta.sim[i] <- theta.actual
+	tasa.acept.acum[i] <- no.aceptados/i
+}
+# Probabilidad
+p.metro <- sum(theta.sim>0.5)/n.sims
+# Gráficas
+plot(tasa.acept.acum[1:1000], type="l", main = 'Tasa de Aceptación')
+plot(theta.sim, type="l", main = 'Simulación Theta')
+@
+La probabilidad estimada de tener 
+una moneda sesgada a sol bajo el método Metropolis es: 
+\Sexpr{ round(p.metro,2)}
+
+
+% JAGS
+\subsection*{Aproximación usando JAGS}
+En el lenguaje \textsf{R} usando el programa \textsf{JAGS}
+(Just Another Gibbs Sampler) en conjunto 
+con el paquete \textsf{r2jags}\cite{Su2012} 
+creado por Su y Yajima y 
+paquete \textsf{rjags} \cite{Plummer2012rjags} 
+creado por Martyn Plummer para graficar las
+aproximaciones. Se realizan
+tres cadenas siguiendo el modelo:
+\[
+y \sim \texttt{dbin}(20, p)
+\quad
+\text{ donde }
+\quad
+p \sim \texttt{dunif}(0, 1)
+\]
+Sólo interesa obtener las simulaciones de $p$. 
+<<ap4_apejem_ejemplo_jags_1moneda, warning=FALSE, message=FALSE, fig.keep='last', fig.width=8, fig.height=5, out.width='11cm', fig.align='center', fig.cap='Evaluación de JAGS'>>=
+# Aplicación de JAGS para un parametro (p)
+library(R2jags)
+# Definición de variables iniciales
+jags.inits <- function(){
+  list("p" = runif(1))
+}
+jags.params <- c('p')
+y <- n
+# Modelo
+jags_moneda <- jags(model.file = 'ejemplo_jags.bugs',
+                data = list('y' = y),
+                inits=jags.inits,
+                parameters.to.save = jags.params,
+                n.iter=30000, 
+                n.burnin=0,
+                n.thin=1,
+                n.chains = 3)
+# Probabilidad de sesgo 
+simulaciones <- (jags_moneda$BUGSoutput$sims.list$p)
+p.jags <- mean(simulaciones>0.5)
+@
+Las simulaciones del parámetro que se obtienen 
+son las estimaciones de la probabilidad del sesgo de 
+la moneda, para obtener la probabilidad de que la moneda 
+sea sesgada a sol se calcula sumando los casos en 
+que la probabilidad es mayor a 
+$.5$ y se divide entre el total de simulaciones 
+que se realizaron, así se obtiene la 
+proporción de casos en los que la moneda es sesgada a sol.
+En la Tabla \ref{tab:apejem_resumenjags} se 
+muestra la información resumida de la estimación del 
+parámetro de la probabilidad posterior del sesgo
+que se obtiene con la función \texttt{jags} del
+paquete \textsf{r2jags}\cite{Su2012}.
+<<ap4_apejem_resumenjags_1moneda, warning=FALSE, message=FALSE, echo=FALSE,results='asis'>>=
+library(xtable)
+tab.sum.1mon <- jags_moneda$BUGSoutput$summary
+colnames(tab.sum.1mon)[colnames(tab.sum.1mon) =="mean"] <- "promedio"
+xtable(tab.sum.1mon,caption="Estimación de Parámetros obtenidos por JAGS", label = "tab:apejem_resumenjags")
+@
+La probabilidad obtenidad de las simulaciones
+de tener una moneda sesgada a sol es: 
+\Sexpr{ round(p.jags,2)}
+
+
+
+
+% COMPARATIVO
+\subsection*{Conclusión}
+Finalmente, la probabilidad de tener una moneda 
+sesgada a sol dado la realización del experimento 
+para todos los métodos es la misma, en la Tabla 
+\ref{tab:apejem_compprobs} se muestra la 
+estimación resultante de cada método.
+<<ap4_comparar_probas, echo = FALSE, results='asis'>>=
+vect.probs <- c(p.analitica, p.grid, p.mc, p.metro, p.jags)
+mets.nom <- c("analítico", "grid", "monte carlo", "metropolis", "JAGS")
+df.probs <- data.frame( método = mets.nom, 
+                        estimación = round(vect.probs,2))
+print(xtable(df.probs,caption="Estimación de probabilidad de sesgo por cada método", label = "tab:apejem_compprobs"), include.rownames=FALSE)
+@
+Se puede ver la estimación calculada sobre 
+las simulaciones obtenidas por cada método tiene 
+un resultado es el mismo.
+
+
+
+
+
+% SOLUCION GIBBS
+\section{Ejemplo 2: Caso Muestreador de Gibbs}
+\subsection*{Aproximación Muestreador de Gibbs}
+En el caso de el muestreador de Gibbs es necesario 
+tener dos o más parámetros, por 
+lo que se toma un nuevo ejemplo tomado 
+de Kruschke (2011, Capítulo 9)\cite{Kruschke2011}.
+
+Suponga una muestra de $m$ monedas independientes de las que se lanzan
+$r$ volados con distribución:
+\[
+f(Y_i|\theta_i) \sim
+\texttt{Binomial}(r,\theta_i)
+\]
+para $i = \{1,\ldots, m\}$.
+
+La casa de moneda en la que se crean las $m$ monedas tiene una 
+distribución beta $\texttt{Beta}(\alpha,\alpha)$ 
+para los sesgos y se sabe la distribución del 
+hiperparámetro de la distribución del sesgo $\alpha$ 
+de forma que:
+\[
+f(\theta_i) \sim
+\texttt{Beta}(\alpha,\alpha)
+\quad 
+\text{ y }
+\quad
+f(\alpha) \sim 
+\texttt{Exp}(1)
+\]
+Se definen en total 5 monedas y 30 volados en total.
+<<ap4_apejem_definicion_gibbs, results='asis'>>=
+set.seed(9192988)
+m <- 5
+n.volados <- 30
+alpha <- rexp(1)
+theta <- rbeta(m, alpha, alpha)
+y <- rbinom(m, size = n.volados, prob = theta)
+@
+
+El problema consiste en evaluar cada parámetro dado el resto de las 
+variables y los datos:
+\[
+f(\theta_i|\theta_{ \{j \neq i\}}, \alpha, Y) \sim
+f(\theta_i|\alpha, Y)
+\]
+\[
+f(\alpha | \theta, \alpha, Y) 
+\]
+Se parte de la distribución conjunta para obtener las distribuciones condicionales:
+\[
+f(\theta, \alpha, y) = 
+f(y | \theta, \alpha) \cdot
+f(\theta| \alpha) \cdot
+f(\alpha) 
+\]
+\[
+f(\theta, \alpha, y)  = 
+\left\{ 
+\prod_{i = 1}^m 
+\left. {r}\choose{y_i} \right.
+\theta_i^{y_i} (1-\theta_i)^{y_i} 
+\right\} \cdot
+\left\{
+\prod_{i = 1}^m \frac{1}{\texttt{B}(\alpha)}
+\theta_i^{\alpha -1} (1-\theta_i)^{\alpha-1} 
+\right\} \cdot
+\left\{
+\texttt{e} ^{(-\alpha)}
+\right\}
+\]
+
+
+\bigskip
+\textbf{Distribuciones Condicionales}
+
+Deducimos las distribuciones
+proporcionales para cada parámetro. En 
+particular para el parámetro $\alpha$ 
+se complica por que no es una distribución 
+conocida:
+\[
+f(\alpha | \theta, y)  \propto
+K_{\alpha} \cdot
+\left\{
+\prod_{i = 1}^m \frac{1}{\texttt{B}(\alpha)}
+\theta_i^{\alpha -1} (1-\theta_i)^{\alpha-1} 
+\right\} \cdot
+\left\{
+\texttt{e} ^{(-\alpha)}
+\right\}
+\]
+Donde $K_{\alpha}$ una constante normalizadora. 
+
+Usando Metropolis dentro del 
+sampleador para aproximar la distribución
+condicional, en este caso, la función objetivo es 
+la condicional de $\alpha$ dado los parámetros y 
+los datos, que se actualiza en cada cíclo del 
+muestreador de Gibbs. 
+La definición de la función condicional la 
+definimos en código de R de la siguiente forma:
+<<ap4_apejem2_funcion_condicionalalpha>>=
+full.cond.alpha.log <- function(alpha, theta){
+  ifelse(alpha> 0 & all(theta < 1) , 
+   sum( -lbeta(alpha, alpha) + (alpha -1) * 
+      log(theta + 0.0001) + (alpha -1) *
+      log(1-theta+ 0.0001) ) - alpha
+    , -Inf )
+}
+@
+Como se esperan las probabilidades de magnitud pequeñas, se usa una transformación de
+las probabilidades logarítmicas y una corrección sobre el vector de sesgos [$\theta$]
+por lo casos en los que tiene valores muy cercanos a cero y se in determine, 
+aunque tiene una probabilidad baja. 
+
+Después se crea la función de la distribución proporcional para usar el método 
+Metropolis como en el ejemplo anterior, pero tomando en cuenta que la distribución  
+devuelve las probabilidades transformadas:
+<<ap4_apejem2_funcion_metropolisalpha>>=
+Metropos.Alpha <- function(alpha.actual, theta){
+    alpha.prop <- rnorm(1, alpha.actual, 0.1)
+    f.alpha.prop <- full.cond.alpha.log(alpha = alpha.prop, theta = theta) 
+    f.alpha.act <- full.cond.alpha.log(alpha = alpha.actual, theta = theta) 
+    ratio.alpha <- exp( f.alpha.prop-f.alpha.act )
+    prob.aceptar <- min(ratio.alpha, 1)
+    resultado <- runif(1)
+    if( resultado < prob.aceptar ){
+      alpha.actual <- alpha.prop
+    }  
+    alpha.actual
+}
+@
+
+Ahora, para la distribución del parámetro de sesgo de las monedas 
+viendo la proporcional se puede ver el kernel de una distribución 
+\texttt{beta} definida de la siguiente forma, 
+\[
+f(\theta_i| \alpha, y)  \propto
+K_{\alpha, y}
+\cdot
+\prod_{i = 1}^m 
+\theta_i^{(y_i+\alpha)-1} (1-\theta_i)^{r - y_i + \alpha} 
+\sim
+\texttt{Beta}(y_i+\alpha, r - y_i + \alpha)
+\]
+Donde $K_{\alpha, y}$ una constante normalizadora 
+en términos de $\alpha$ y $y$. 
+
+Una vez que se tienen definidas todas las funciones se escribe el muestreador 
+de Gibbs:
+<<ap4_apejem2_muestreador_gibbs>>=
+# Gibbs
+n.sims <- 2000
+theta.sims <- matrix(ncol=m, nrow=n.sims)
+alpha.sims <- rep(NA, length = n.sims)
+theta.sims[1,] <- rep(0.5, m)
+alpha.sims[1] <- runif(1)
+for(i in 2:n.sims){
+  alpha.act <- alpha.sims[i-1] 
+  # paso de simulacion para theta
+  theta.sims[i, ] <- rbeta(m, y + alpha.act, n.volados - y + alpha.act)
+  theta.act <- theta.sims[i, ]
+	# paso de Metropolis para alpha
+	alpha.sims[i] <- Metropos.Alpha(alpha.actual = alpha.act, theta = theta.act)
+}
+@
+
+Como las monedas son independientes entre ellas es
+posible simular $\theta_i$ en el mismo momento. Si no 
+fueran independientes sería necesario realizar 
+uno por uno, en este caso, las simulaciones de $\theta$
+solo afectan la simulación de $\alpha$. El 
+cíclo que sigue es en primer lugar el vector de 
+parámetros $\theta$ y en segundo lugar usando 
+los últimos $\alpha$, entonces se actualiza el valor 
+de $\alpha$ para la siguiente estimación de $\theta$.
+
+Finalmente se obtiene la simulación de cada 
+parámetro y se puede decir que se aproxima 
+a la distribución posterior. Considerando el 
+valor original de $\alpha =$\Sexpr{alpha} 
+el intervalo del 90\% de probabilidad 
+que se obtiene de las simulaciones 
+es (\Sexpr{ round(quantile(alpha.sims, probs=0.05),2)},
+\Sexpr{round(quantile(alpha.sims, probs=0.95),2)}).
+<<ap4_apejem2_resultados_gibbs, fig.align='center', fig.width=5, fig.height=4, out.width='6cm',fig.keep='all'>>=
+hist(alpha.sims,100)
+# plot(alpha.sims, type='l')
+plot(apply(theta.sims,2,mean), theta)
+@
+
+
+
+% Aproximación con JAGS
+\subsection*{Aproximación usando JAGS}
+La aproximación realizada en \textsf{JAGS}
+se resumen en esta sección
+para cada evaluación de $\theta$.
+<<ap4_apejem2_aproxjags>>=
+# Con JAGS  m+1 parametros
+jags.inits.monedas <- function(){
+  list("alpha" = runif(1))
+}
+jags.params.monedas <- c('alpha', 'theta')
+jags_m_monedas <- jags(model.file = 'ejemplo_gibbs_monedas.bugs',
+                    data = list('y' = y, 'r' = n.volados),
+                    inits=jags.inits.monedas,
+                    parameters.to.save = jags.params.monedas,
+                    n.iter=1000, 
+                    n.burnin=0,
+                    n.thin=1,
+                    n.chains = 3)
+@
+
+En la Tabla \ref{tab:apejem2_jagsres} se muestra 
+el resultado de las simulaciones realizadas 
+con \textsf{r2jags}\cite{Su2012}
+para cada parámetro $\Theta = \theta_1, \ldots, \theta_5$
+y $\alpha$.
+<<ap4_apejem2_aproxjags_tablaresumen, echo=FALSE,results='asis'>>=
+tab.sum <- jags_m_monedas$BUGSoutput$summary[, 1:7]
+colnames(tab.sum)[colnames(tab.sum) == "mean"] <- "promedio"
+print(xtable(tab.sum,caption="Estimación de parámetros de JAGS", label = "tab:apejem2_jagsres"), include.rownames=TRUE)
+@
+
+
+% BIBLIOGRAFÍA
+\backmatter
+\bibliography{../../Tesis_biblos}
+\bibliographystyle{plain}
+\end{document}

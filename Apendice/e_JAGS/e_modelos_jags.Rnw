@@ -1,0 +1,233 @@
+\documentclass{book}
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,latexsym,epsfig} 
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,mexico]{babel}
+\usepackage[top = 2.5 cm]{geometry}
+\usepackage{color}
+\usepackage{fancyhdr}
+
+
+\pagestyle{fancyplain}
+\parskip=10pt %espacio entre p·rrafos
+\hoffset=0cm%-0.75cm%-20pt %1in +\hoffset
+\voffset=-1cm%-20pt %1in +\voffset
+\marginparwidth=0cm %ancho del margen izq.
+\oddsidemargin=0.5cm
+\evensidemargin=-0.41cm
+\textheight=23cm%700pt %medida de la p·g 595
+\textwidth=16.5cm%515pt %medida de la p·g 495
+\headheight=12pt \marginparsep=0cm \footskip=36pt \topmargin=0cm
+\headsep=16pt %\marginparpush=0pt
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries \thepage}]{\fancyplain{}{\bfseries \sl \rightmark}} \chead{} 
+\rhead[\fancyplain{}{\bfseries \sl \leftmark}]{\fancyplain{}{\bfseries \thepage}} 
+\pagestyle{fancy}  
+\lhead[\fancyplain{}{\small \rm \thepage}]{\fancyplain{}{\small \sl \rightmark}} 
+\rhead[\fancyplain{} {\small \sl \leftmark}] {\fancyplain{}{\small \rm \thepage}} 
+\lfoot{} \cfoot{} \rfoot{}
+
+\linespread{1.5}
+
+\setlength{\belowdisplayskip}{1.5pt} \setlength{\belowdisplayshortskip}{1.5pt}
+\setlength{\abovedisplayskip}{1.5pt} \setlength{\abovedisplayshortskip}{1.5pt}
+
+\newcommand{\tmt}[1]{\texttt{tratamiento #1}}
+\newcommand{\AOV}{\texttt{ANOVA}}
+\newcommand{\nota}[1]{\textcolor{red}{Nota: \texttt{#1} } } 
+\newcommand{\doe}{\text{diseño de experimentos}}
+\newcommand{\Hi}[1]{\texttt{H}_{#1} }
+\newcommand{\Normal}{\texttt{N}}
+\newcommand{\chisquared}[1]{\chi_{ \text{\tiny{(#1)}} }^2}
+\newcommand{\Fdist}[1]{\text{F}_{ \text{\tiny{#1}} } }
+\newcommand{\E}{\texttt{E} }
+\newcommand{\SST}{ \texttt{SS}_\texttt{T} }
+\newcommand{\SStmt}{ \texttt{SS}_\texttt{tmt} }
+\newcommand{\SSe}{ \texttt{SS}_\texttt{E} }
+\newcommand{\strat}[1]{ (n-1) \hat{\sigma}_{ \texttt{en } #1}^2 }
+\newcommand{\MSe}{ \texttt{MS}_\texttt{E} }
+\newcommand{\MStmt}{ \texttt{MS}_\texttt{tmt} }
+\newcommand{\tdist}[1]{\textit{t}_{ \text{\tiny{#1}} } }
+
+
+% TESIS
+\begin{document}
+
+%\mainmatter
+%\frontmatter
+\appendix
+\setcounter{chapter}{4}
+\chapter{Código y Convergencia por Modelos Jerárquicos}\label{apend:script_JAGS}
+
+En el Capítulo \ref{chap:aplicaciones} de esta tesis 
+se analizan tres aplicaciones de diseños experimentales
+analizados con ambos métodos. 
+
+Para esto se usa el programa \textsf{JAGS} 
+en \textsf{R} con el paquete
+\textsf{r2jags} \cite{Su2012} creado por Su y Yajima. 
+Como se mencionó antes, la realización del 
+modelo es por medio de simulaciones 
+de la distribución posterior, \textsf{JAGS}
+usa distintas formas de estimar la distribución 
+posterior, en el Apéndice \ref{apend:sim_posterior} 
+se describen distintos métodos.
+
+
+\bigskip
+La forma de realizar los modelos de esta
+tesis es la siguiente: se genera
+un documento \emph{.bug} con la 
+función \texttt{model} que especifica
+el modelo. Posteriormente
+se usa la función \texttt{jags} en \textsf{R}, 
+con los parámetros, valores iniciales y 
+datos iniciales que se necesitan para evaluar el modelo. 
+Por último, se 
+evalúa la convergencia con la función \texttt{plot} 
+del paquete \textsf{rjags}\cite{Plummer2012rjags}. 
+
+A continuación se presenta el código para especificar el
+modelo usando la función \texttt{model} y 
+el resultado de convergencia por cada aplicación. 
+
+<<ap5_setwd, echo=FALSE, warning=FALSE, message=FALSE>>=
+setwd('../../../analisis_ejemplos')
+library(ProjectTemplate)
+load.project()
+@
+
+\newpage
+\section{Diseño Factorial Dos Factores}
+\vspace{-.6cm}
+\subsection*{Tiempo de Vida de una Batería}
+\vspace{-.7cm}
+<<ap5_twt_jags, echo=TRUE, eval=FALSE, results='hide'>>=
+model{ 
+  for(i in 1:n){
+    y[i] ~ dnorm(y.hat[i], tau.y)
+    y.hat[i] <- alpha + b.tipo[tipo[i]] + b.temp[temp[i]] + b.inter[tipo[i], temp[i]]
+    e.y[i] <- y[i] - y.hat[i]
+  }
+  # Priori
+  for(k in 1:3){
+    b.tipo[k] ~ dnorm(0, tau.tipo)
+  }
+  for(j in 1:3){
+    b.temp[j] ~ dnorm(0, tau.temp)
+  }
+  for(k in 1:3){
+    for(j in 1:3){
+      b.inter[k,j] ~ dnorm(0, tau.inter)
+    }
+  }
+  # Hiperparametros
+  alpha ~ dnorm(0, 0.0001)    
+  tau.y <- pow(sigma.y, -2)
+  sigma.y ~ dunif(0, 100)
+  tau.tipo <- pow(sigma.tipo, -2)
+  sigma.tipo ~ dunif(0, 100)
+  tau.temp <- pow(sigma.temp, -2)
+  sigma.temp ~ dunif(0, 100)
+  tau.inter <- pow(sigma.inter, -2)
+  sigma.inter ~ dunif(0, 100)
+  # Extra
+  sd.tipo <- sd(b.tipo[])
+  sd.temp <- sd(b.temp[])
+  sd.inter <- sd(b.inter[,])
+  sd.error <- sd(e.y[])
+}
+@
+
+<<ap5_twt_plot, echo=FALSE, fig.width=8, fig.height=10, fig.align='center', fig.lp='fig:', fig.cap='Evaluación modelo jerárquico diseño factorial de dos factores', fig.pos='!h'>>=
+plot(jags.twt)
+@
+
+
+
+
+
+\newpage
+\section{Diseño de Bloques Incompletos}
+\subsection*{Tiempo de Reacción de Catalizadores}
+
+<<ap5_bi_jags, echo=TRUE, eval=FALSE, results='hide'>>=
+model{
+    for(i in 1:n){
+    y[i] ~ dnorm (y.hat[i], tau.y)
+    y.hat[i] <- alpha + b.maquina[maquina[i]] + b.catalizador[catalizador[i]] 
+    e.y[i] <- y[i] - y.hat[i]     
+    efecto[i] <- alpha + b.catalizador[catalizador[i]]
+    }   
+    # Priori
+    for(k in 1:n.maq){
+    b.maquina[k] ~ dnorm(0, tau.maquina) 
+    }
+    for(l in 1:n.cat){
+    b.catalizador[l] ~ dnorm(0, tau.catalizador)
+    }  
+    # Hiperparámetros
+    alpha ~ dnorm(0, 0.0001)    
+    tau.y <- pow(sigma.y, -2)
+    sigma.y ~ dunif(0,100)
+    tau.maquina <- pow(sigma.maquina, -2)
+    sigma.maquina ~ dunif(0,100)
+    tau.catalizador <- pow(sigma.catalizador, -2)
+    sigma.catalizador ~ dunif(0,100)    
+    # Cálculos extra  
+    sd.maquina <- sd(b.maquina[])
+    sd.catalizador <- sd(b.catalizador[])
+    sd.error <- sd(e.y[])
+}
+@
+
+<<ap5_bi_plot, echo=FALSE, fig.width=8, fig.height=10, fig.align='center', fig.lp='fig:', fig.cap='Evaluación modelo jerárquico diseño bloques incompletos', fig.pos='!h'>>=
+plot(jags.bi)
+@
+
+
+\newpage
+\section{Diseño de Lotes Divididos}
+\subsection*{Porcentaje de Reducción en Proceso de Moldeo}
+<<ap5_sp_jags, echo=TRUE, eval=FALSE, results='hide'>>=
+model{
+# Modelo 
+for(i in 1:n){
+  y[i] ~ dnorm(y.hat[i], tau.y)
+  y.hat[i] <- inprod(mat.main[i, ], b.main) +
+              inprod(mat.sub[i, ], b.sub)  
+  e.y[i] <- y[i] - y.hat[i]
+}
+
+# Priori Main Plot
+for(k in 1:n.main){
+b.main[k] ~ dnorm(0, tau.main)
+}
+tau.main <- pow(sigma.main, -2)
+sigma.main ~ dunif(0,10)  
+
+for(k in 1:n.sub){
+b.sub[k] ~ dnorm(0, tau.sub)
+}  
+tau.sub <- pow(sigma.sub, -2)
+sigma.sub ~ dunif(0,10)      
+    
+# Hiperparámetros
+tau.y <- pow(sigma.error, -2)
+sigma.error ~ dunif(0,10)
+}
+@
+
+<<ap5_jags_sp, echo=FALSE, fig.width=8, fig.height=10, fig.align='center', fig.lp='fig:', fig.cap='Evaluación modelo jerárquico diseño split plot', fig.pos='!h'>>=
+plot(jags.sp.2c)
+@
+
+
+% BIBLIOGRAFÍA
+\backmatter
+\bibliography{../../Tesis_biblos}
+\bibliographystyle{plain}
+\end{document}
