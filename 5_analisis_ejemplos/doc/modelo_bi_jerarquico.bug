@@ -1,0 +1,33 @@
+
+model{
+    # Modelo
+    for(i in 1:n){
+    y[i] ~ dnorm (y.hat[i], tau.y)
+    y.hat[i] <- alpha + b.maquina[maquina[i]] + b.catalizador[catalizador[i]] 
+    e.y[i] <- y[i] - y.hat[i]     
+    efecto[i] <- alpha + b.catalizador[catalizador[i]]
+    }
+    
+    # Priori
+    for(k in 1:n.maq){
+    b.maquina[k] ~ dnorm(0, tau.maquina) 
+    }
+    for(l in 1:n.cat){
+    b.catalizador[l] ~ dnorm(0, tau.catalizador)
+    }
+    
+    # Hiperparámetros
+    alpha ~ dnorm(0, 0.0001)    
+    tau.y <- pow(sigma.y, -2)
+    sigma.y ~ dunif(0,100)
+    tau.maquina <- pow(sigma.maquina, -2)
+    sigma.maquina ~ dunif(0,100)
+    tau.catalizador <- pow(sigma.catalizador, -2)
+    sigma.catalizador ~ dunif(0,100)
+    
+    # Cálculos extra  
+    sd.maquina <- sd(b.maquina[])
+    sd.catalizador <- sd(b.catalizador[])
+    sd.error <- sd(e.y[])
+}
+    

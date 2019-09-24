@@ -1,0 +1,28 @@
+
+    model{
+    # Modelo 
+    for(i in 1:n){
+      y[i] ~ dnorm(y.hat[i], tau.y)
+      y.hat[i] <- inprod(mat.main[i, ], b.main) +
+        inprod(mat.sub[i, ], b.sub)  
+      e.y[i] <- y[i] - y.hat[i]
+    }
+    
+    # Priori Main Plot
+    for(k in 1:n.main){
+      b.main[k] ~ dnorm(0, tau.main[k])
+      tau.main[k] <- pow(sigma.main[k], -2)
+      sigma.main[k] ~ dunif(0,10)      
+    }
+    
+    
+    for(k in 1:n.sub){
+      b.sub[k] ~ dnorm(0, tau.sub[k])
+      tau.sub[k] <- pow(sigma.sub[k], -2)
+      sigma.sub[k] ~ dunif(0,10)      
+    }  
+    
+    # Hiperparámetros
+    tau.y <- pow(sigma.error, -2)
+    sigma.error ~ dunif(0,10)
+    }

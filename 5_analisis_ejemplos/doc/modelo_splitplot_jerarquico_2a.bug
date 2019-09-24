@@ -1,0 +1,72 @@
+
+model{
+    # Modelo 
+    for(i in 1:n){
+
+      y[i] ~ dnorm(y.hat[i], tau.y)
+      
+      # definición de coeficientes 
+      for(k in 1:n.main){
+        b.main.aux[i,k] <- b.main[k,mat.main[i,k]]
+      }
+      for(k in 1:n.sub){
+        b.sub.aux[i,k] <- b.sub[k,mat.sub[i,k]]
+      }
+      for(k in 1:n.sub.int){
+        b.sub.int.aux[i,k] <- b.sub.int[k,mat.sub.int[i,k]]
+      }
+
+      y.hat[i] <- sum(b.main.aux[i,]) +
+                  b.main.error[mat.main.error[i]] +  
+                  sum(b.sub.aux[i,]) + 
+                  sum(b.sub.int.aux[i,]) + 
+                  b.sub.error[mat.sub.error[i]]
+
+      e.y[i] <- y[i] - y.hat[i]
+    }
+    
+    # Priori Main Plot
+    for(k in 1:n.main){
+      for(j in 1:2){
+        b.main[k, j] ~ dnorm(0, tau.main[k])
+      }
+      tau.main[k] <- pow(sigma.main[k], -2)
+      sigma.main[k] ~ dunif(0,10)
+      sd.main[k] <- sd(b.main[k,])
+    }
+    for(j in 1:2){
+      b.main.error[j] ~ dnorm(0, tau.main.error)
+    }
+    tau.main.error <- pow(sigma.main.error, -2)
+    sigma.main.error ~ dunif(0,10)
+    sd.main.error <- sd(b.main.error)
+
+    # Priori Sub Plot
+    for(k in 1:n.sub){
+      for(j in 1:2){
+        b.sub[k,j] ~ dnorm(0, tau.sub[k])
+      }
+      tau.sub[k] <- pow(sigma.sub[k], -2)
+      sigma.sub[k] ~ dunif(0,10)
+      sd.sub[k] <- sd(b.sub[k,])
+    }
+    for(k in 1:n.sub.int){
+      for(j in 1:2){
+        b.sub.int[k,j] ~ dnorm(0, tau.sub.int[k])
+      }
+      tau.sub.int[k] <- pow(sigma.sub.int[k], -2)
+      sigma.sub.int[k] ~ dunif(0,10)
+      sd.sub.int[k] <- sd(b.sub.int[k,])
+    }
+    for(j in 1:2){
+      b.sub.error[j] ~ dnorm(0, tau.sub.error)
+    }
+    tau.sub.error <- pow(sigma.sub.error, -2)
+    sigma.sub.error ~ dunif(0,10)
+    sd.sub.error <- sd(b.sub.error)
+
+    # Hiperparámetros
+    tau.y <- pow(sigma.error, -2)
+    sigma.error ~ dunif(0,10)
+    sd.error <- sd(e.y[])
+    }

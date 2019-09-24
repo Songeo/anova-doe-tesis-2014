@@ -1,0 +1,8 @@
+data_loading: on
+cache_loading: off
+munging: on
+logging: off
+load_libraries: on
+libraries: reshape2, plyr, ggplot2, stringr, lubridate, gdata, arm, R2jags, BHH2, xtable, BsMD, agricolae, dae, gridExtra
+as_factors: on
+data_tables: off
